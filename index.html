@@ -35,12 +35,14 @@
             margin-bottom: 14px;
             padding-bottom: 8px;
             border-bottom: 1px solid #1a1a2a;
+            flex-wrap: wrap;
         }
         .status-bar .live { color: #4cd964; font-weight: 600; }
         .status-bar .live::before { content: "●"; margin-right: 6px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .status-bar .time { color: #555; font-variant-numeric: tabular-nums; }
         .badge { background: #2a2a3e; padding: 4px 12px; border-radius: 20px; font-size: 11px; color: #aaa; font-weight: 500; }
+        .storage-info { font-size: 11px; color: #4cd964; margin-left: 8px; }
 
         .header { text-align: center; padding: 4px 0 12px; }
         .header h1 { font-size: 24px; font-weight: 700; letter-spacing: 1px; background: linear-gradient(135deg, #f6b83d, #f5a623); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -67,10 +69,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .algo-switch button.active {
-            background: #f6b83d;
-            color: #0a0a12;
-        }
+        .algo-switch button.active { background: #f6b83d; color: #0a0a12; }
         .algo-switch button:active { opacity: 0.6; }
 
         .card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 16px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.04); backdrop-filter: blur(10px); }
@@ -119,8 +118,20 @@
         th { text-align: left; color: #666; font-weight: 500; padding: 6px 4px; border-bottom: 1px solid #222; position: sticky; top: 0; background: #0a0a12; }
         td { padding: 6px 4px; border-bottom: 1px solid #1a1a2a; color: #ccc; }
         td .result-icon { font-size: 16px; }
-        .refresh-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: #aaa; padding: 6px 16px; border-radius: 30px; font-size: 13px; cursor: pointer; transition: 0.2s; backdrop-filter: blur(10px); }
-        .refresh-btn:active { background: rgba(255,255,255,0.12); color: #fff; }
+
+        .toolbar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 10px; }
+        .toolbar button {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #aaa;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toolbar button:active { background: rgba(255,255,255,0.12); color: #fff; }
+        .toolbar button.danger { border-color: rgba(255,59,48,0.3); color: #ff3b30; }
 
         @media (max-width: 420px) {
             #app { padding: 16px 12px; }
@@ -137,22 +148,20 @@
     <div class="status-bar">
         <span class="live">实时监控</span>
         <span class="badge" id="algoNameBadge">换球算法</span>
+        <span class="storage-info" id="storageInfo">📦 已加载 0 条</span>
         <span class="time" id="updateTime">--:--:--</span>
     </div>
 
-    <!-- 标题 -->
     <div class="header">
         <h1>🔥 PC28 杀组预测</h1>
         <div class="sub" id="algoSub">C球 · 跨期</div>
     </div>
 
-    <!-- 算法切换 -->
     <div class="algo-switch" id="algoSwitch">
         <button class="active" data-algo="huanqiu">换球算法</button>
         <button data-algo="logc1">对数C算法</button>
     </div>
 
-    <!-- 最新开奖 -->
     <div class="card card-latest">
         <div class="top">
             <span class="period">📡 期号 <span id="period">--</span></span>
@@ -166,14 +175,12 @@
         <div class="sum">和值 <b id="sum">--</b></div>
     </div>
 
-    <!-- 预测杀号 -->
     <div class="card card-kill">
         <div class="label">🔮 下一期预测</div>
         <div class="kill" id="kill">-- 杀 --</div>
         <div class="sub-info">基于 <span id="basedOn">--</span></div>
     </div>
 
-    <!-- 统计 -->
     <div class="stats-grid">
         <div class="stat-item"><div class="num gold" id="total">0</div><div class="lbl">总期数</div></div>
         <div class="stat-item"><div class="num green" id="hit">0</div><div class="lbl">🀄️ 杀对</div></div>
@@ -183,19 +190,16 @@
         <div class="stat-item"><div class="num" id="maxWin" style="color:#f6b83d;">0</div><div class="lbl">最高连对</div></div>
     </div>
 
-    <!-- 连中奖励 -->
     <div class="reward-box" id="rewardBox">
         <div class="label">🏆 连中奖励</div>
         <div class="amount" id="rewardAmount">-</div>
     </div>
 
-    <!-- 倒计时 -->
     <div class="countdown-box">
         <span class="label">⏳ 下期开奖</span>
         <span class="time" id="countdown">--:--</span>
     </div>
 
-    <!-- 历史结果序列 -->
     <div class="card card-history">
         <div class="title">
             <span>📋 最近结果</span>
@@ -208,11 +212,14 @@
         <div class="history-dots" id="historyDots"></div>
     </div>
 
-    <!-- 开奖流水历史记录 -->
     <div class="card" style="padding:12px 12px 8px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <span style="font-size:14px; color:#888;">📜 开奖流水</span>
-            <button class="refresh-btn" id="refreshBtn">⟳ 手动刷新</button>
+            <div class="toolbar" style="margin:0;">
+                <button id="exportBtn">📤 导出数据</button>
+                <button id="importBtn">📥 导入数据</button>
+                <button id="clearBtn" class="danger">🗑️ 清空历史</button>
+            </div>
         </div>
         <div class="history-table-wrap" id="historyTableWrap">
             <table>
@@ -227,6 +234,7 @@
 // ========== 配置 ==========
 const API_URL = "https://pc28.help/api/kj.json?nbr=5";
 const STORAGE_KEY = 'pc28_history_data';
+
 const ALGO_NAMES = {
     huanqiu: '换球算法',
     logc1: '对数C算法'
@@ -241,7 +249,7 @@ const KILL_MAP = {
     24:"大双",25:"大单",26:"大双",27:"大单"
 };
 
-// ========== 算法函数 ==========
+// ========== 算法 ==========
 function getKill_huanqiu(c1, c2) {
     const val = (Math.sin(c1) * Math.sqrt(c2)) / 3.0;
     const absVal = Math.abs(val);
@@ -263,7 +271,6 @@ function getKill_logc1(c1) {
     return KILL_MAP[n] || "小双";
 }
 
-// ========== 奖励表 ==========
 function getReward(winStreak) {
     if (winStreak >= 13) return '28.8 CNY';
     if (winStreak >= 11) return '15.8 CNY';
@@ -273,13 +280,11 @@ function getReward(winStreak) {
 
 // ========== 状态 ==========
 let currentAlgo = 'huanqiu';
-let history = [];          // 存储所有记录 { period, a,b,c, sum, combo, pred, result }
+let history = [];
 let pendingPeriod = null;
 let pendingKill = null;
-let pendingRec = null;     // 待验证的记录对象
 let total = 0, hit = 0, miss = 0, curWin = 0, maxWin = 0;
 let lastBroadcastPeriod = null;
-let countdownTimer = null;
 
 // ========== localStorage 操作 ==========
 function loadHistory() {
@@ -291,7 +296,6 @@ function loadHistory() {
             total = history.length;
             hit = history.filter(r => r.result === '🀄️').length;
             miss = total - hit;
-            // 计算连对
             let max = 0, cur = 0;
             for (const r of history) {
                 if (r.result === '🀄️') { cur++; max = Math.max(max, cur); }
@@ -299,14 +303,81 @@ function loadHistory() {
             }
             curWin = cur;
             maxWin = max;
+            return true;
         }
     } catch (e) { console.warn('加载历史失败', e); }
+    return false;
 }
 
 function saveHistory() {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-    } catch (e) { console.warn('保存历史失败', e); }
+        // 更新存储状态显示
+        document.getElementById('storageInfo').textContent = `📦 已加载 ${history.length} 条`;
+        return true;
+    } catch (e) {
+        console.warn('保存历史失败', e);
+        return false;
+    }
+}
+
+// ========== 导出/导入 ==========
+function exportData() {
+    const data = JSON.stringify(history, null, 2);
+    const blob = new Blob([data], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pc28_history_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            try {
+                const data = JSON.parse(ev.target.result);
+                if (Array.isArray(data)) {
+                    history = data;
+                    saveHistory();
+                    // 重新计算统计
+                    total = history.length;
+                    hit = history.filter(r => r.result === '🀄️').length;
+                    miss = total - hit;
+                    let max = 0, cur = 0;
+                    for (const r of history) {
+                        if (r.result === '🀄️') { cur++; max = Math.max(max, cur); }
+                        else { cur = 0; }
+                    }
+                    curWin = cur;
+                    maxWin = max;
+                    renderAll();
+                    alert('✅ 数据导入成功！');
+                } else {
+                    alert('❌ 数据格式无效');
+                }
+            } catch(e) { alert('❌ 解析失败: '+e.message); }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function clearHistory() {
+    if (confirm('⚠️ 确定要清空所有历史记录吗？此操作不可恢复！')) {
+        history = [];
+        total = 0; hit = 0; miss = 0; curWin = 0; maxWin = 0;
+        saveHistory();
+        renderAll();
+        alert('✅ 已清空');
+    }
 }
 
 // ========== 数据获取 ==========
@@ -336,110 +407,9 @@ async function fetchData() {
     }
 }
 
-// ========== 核心更新 ==========
-async function refreshData() {
-    const result = await fetchData();
-    if (!result) return;
-    const { data, countdown } = result;
-    if (data.length < 2) return;
-
-    // 更新倒计时
-    updateCountdown(countdown);
-
-    // 查找最新一期
-    const latest = data[data.length - 1];
-    const current = latest.period;
-
-    // 检查是否已存在于历史
-    const existing = history.find(r => r.period === current);
-    if (!existing) {
-        // 新期，先验证上一期预测
-        if (pendingPeriod && pendingPeriod === current) {
-            // 验证
-            const ok = pendingKill !== latest.combo;
-            const rec = {
-                period: current,
-                a: latest.a, b: latest.b, c: latest.c,
-                sum: latest.sum,
-                combo: latest.combo,
-                pred: pendingKill,
-                result: ok ? '🀄️' : '🍉'
-            };
-            history.push(rec);
-            total++;
-            if (ok) {
-                hit++;
-                curWin++;
-                if (curWin > maxWin) maxWin = curWin;
-            } else {
-                miss++;
-                curWin = 0;
-            }
-            saveHistory();
-            pendingPeriod = null;
-            pendingKill = null;
-        } else {
-            // 如果没有待验证，但新期出现，可能之前遗漏，直接记录历史(无预测)
-            const rec = {
-                period: current,
-                a: latest.a, b: latest.b, c: latest.c,
-                sum: latest.sum,
-                combo: latest.combo,
-                pred: '--',
-                result: '--'
-            };
-            history.push(rec);
-            saveHistory();
-        }
-    }
-
-    // 生成新预测(用最新两期)
-    if (data.length >= 3) {
-        const prev = data[data.length - 2];
-        const prev2 = data[data.length - 3];
-        let kill, basedOn;
-        if (currentAlgo === 'huanqiu') {
-            const c1 = prev.c;
-            const c2 = prev2.c;
-            kill = getKill_huanqiu(c1, c2);
-            basedOn = `C1=${c1}, C2=${c2}`;
-        } else { // logc1
-            const c1 = prev.c;
-            kill = getKill_logc1(c1);
-            basedOn = `C1=${c1}`;
-        }
-        const nextPeriod = String(parseInt(current) + 1);
-        pendingPeriod = nextPeriod;
-        pendingKill = kill;
-        lastBroadcastPeriod = current;
-
-        // 更新UI
-        updateUI(latest, kill, basedOn, nextPeriod);
-        // 更新历史表格
-        renderHistoryTable();
-    }
-}
-
-// ========== UI更新 ==========
-function updateUI(latest, kill, basedOn, nextPeriod) {
-    // 最新开奖
-    document.getElementById('period').textContent = latest.period;
-    document.getElementById('a').textContent = latest.a;
-    document.getElementById('b').textContent = latest.b;
-    document.getElementById('c').textContent = latest.c;
-    document.getElementById('sum').textContent = latest.sum;
-    document.getElementById('comboBadge').textContent = latest.combo;
-
-    // 预测
-    if (kill) {
-        const shortPeriod = nextPeriod.slice(-2);
-        document.getElementById('kill').textContent = `${shortPeriod} 杀 ${kill}`;
-    } else {
-        document.getElementById('kill').textContent = '-- 杀 --';
-    }
-    document.getElementById('basedOn').textContent = basedOn || '--';
-
-    // 统计
+// ========== 渲染UI ==========
+function renderAll() {
+    // 统计算上
     const rate = total ? (hit / total * 100) : 0;
     document.getElementById('total').textContent = total;
     document.getElementById('hit').textContent = hit;
@@ -447,9 +417,9 @@ function updateUI(latest, kill, basedOn, nextPeriod) {
     document.getElementById('rate').textContent = rate.toFixed(1) + '%';
     document.getElementById('curWin').textContent = curWin;
     document.getElementById('maxWin').textContent = maxWin;
-
-    // 奖励
     document.getElementById('rewardAmount').textContent = getReward(curWin);
+    document.getElementById('winCount').textContent = hit;
+    document.getElementById('loseCount').textContent = miss;
 
     // 历史点阵
     const recent = history.slice(-15).map(r => r.result).filter(r => r !== '--');
@@ -460,21 +430,8 @@ function updateUI(latest, kill, basedOn, nextPeriod) {
     }).join('');
     if (recent.length === 0) dotsContainer.innerHTML = '<span style="color:#555;font-size:13px;">暂无结果</span>';
 
-    const winCnt = history.filter(r => r.result === '🀄️').length;
-    const loseCnt = history.filter(r => r.result === '🍉').length;
-    document.getElementById('winCount').textContent = winCnt;
-    document.getElementById('loseCount').textContent = loseCnt;
-
-    document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
-
-    // 更新算法名称
-    document.getElementById('algoNameBadge').textContent = ALGO_NAMES[currentAlgo];
-    document.getElementById('algoSub').textContent = currentAlgo === 'huanqiu' ? 'C球 · 跨期' : 'C球 · 对数';
-}
-
-function renderHistoryTable() {
+    // 表格
     const tbody = document.getElementById('historyBody');
-    // 显示最近30条(倒序)
     const items = history.slice(-30).reverse();
     tbody.innerHTML = items.map(r => `
         <tr>
@@ -488,32 +445,110 @@ function renderHistoryTable() {
     `).join('');
 }
 
-// ========== 倒计时更新 ==========
-function updateCountdown(countdownStr) {
-    const el = document.getElementById('countdown');
-    if (countdownStr && countdownStr.includes(':')) {
-        el.textContent = countdownStr;
+function updateLatestUI(latest, kill, basedOn, nextPeriod) {
+    document.getElementById('period').textContent = latest.period;
+    document.getElementById('a').textContent = latest.a;
+    document.getElementById('b').textContent = latest.b;
+    document.getElementById('c').textContent = latest.c;
+    document.getElementById('sum').textContent = latest.sum;
+    document.getElementById('comboBadge').textContent = latest.combo;
+
+    if (kill) {
+        const shortPeriod = nextPeriod.slice(-2);
+        document.getElementById('kill').textContent = `${shortPeriod} 杀 ${kill}`;
     } else {
-        // 模拟倒计时：每3分钟一期，简单显示
-        if (!window._countdownSeconds) {
-            window._countdownSeconds = 180;
-        }
-        const mins = Math.floor(window._countdownSeconds / 60);
-        const secs = window._countdownSeconds % 60;
-        el.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-        if (window._countdownSeconds > 0) window._countdownSeconds--;
-        else window._countdownSeconds = 180;
+        document.getElementById('kill').textContent = '-- 杀 --';
     }
+    document.getElementById('basedOn').textContent = basedOn || '--';
+    document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
+    document.getElementById('algoNameBadge').textContent = ALGO_NAMES[currentAlgo];
+    document.getElementById('algoSub').textContent = currentAlgo === 'huanqiu' ? 'C球 · 跨期' : 'C球 · 对数';
 }
 
-// ========== 算法切换 ==========
+// ========== 核心更新 ==========
+async function refreshData() {
+    const result = await fetchData();
+    if (!result) return;
+    const { data, countdown } = result;
+    if (data.length < 2) return;
+
+    // 更新倒计时
+    const el = document.getElementById('countdown');
+    el.textContent = countdown || '--:--';
+
+    const latest = data[data.length - 1];
+    const current = latest.period;
+
+    // 检查是否已存在
+    const existing = history.find(r => r.period === current);
+    if (!existing) {
+        if (pendingPeriod && pendingPeriod === current) {
+            const ok = pendingKill !== latest.combo;
+            const rec = {
+                period: current,
+                a: latest.a, b: latest.b, c: latest.c,
+                sum: latest.sum,
+                combo: latest.combo,
+                pred: pendingKill,
+                result: ok ? '🀄️' : '🍉'
+            };
+            history.push(rec);
+            total++;
+            if (ok) { hit++; curWin++; if (curWin > maxWin) maxWin = curWin; }
+            else { miss++; curWin = 0; }
+            saveHistory();
+            pendingPeriod = null;
+            pendingKill = null;
+        } else {
+            const rec = {
+                period: current,
+                a: latest.a, b: latest.b, c: latest.c,
+                sum: latest.sum,
+                combo: latest.combo,
+                pred: '--',
+                result: '--'
+            };
+            history.push(rec);
+            saveHistory();
+        }
+    }
+
+    // 生成新预测
+    if (data.length >= 3) {
+        const prev = data[data.length - 2];
+        const prev2 = data[data.length - 3];
+        let kill, basedOn;
+        if (currentAlgo === 'huanqiu') {
+            const c1 = prev.c;
+            const c2 = prev2.c;
+            kill = getKill_huanqiu(c1, c2);
+            basedOn = `C1=${c1}, C2=${c2}`;
+        } else {
+            const c1 = prev.c;
+            kill = getKill_logc1(c1);
+            basedOn = `C1=${c1}`;
+        }
+        const nextPeriod = String(parseInt(current) + 1);
+        pendingPeriod = nextPeriod;
+        pendingKill = kill;
+        lastBroadcastPeriod = current;
+
+        updateLatestUI(latest, kill, basedOn, nextPeriod);
+    } else {
+        updateLatestUI(latest, null, '--', '--');
+    }
+
+    // 刷新统计和表格
+    renderAll();
+}
+
+// ========== 切换算法 ==========
 function switchAlgo(algo) {
     if (algo === currentAlgo) return;
     currentAlgo = algo;
     document.querySelectorAll('.algo-switch button').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.algo === algo);
     });
-    // 清空待验证，重新预测
     pendingPeriod = null;
     pendingKill = null;
     refreshData();
@@ -521,20 +556,28 @@ function switchAlgo(algo) {
 
 // ========== 初始化 ==========
 function init() {
-    loadHistory();
-    // 注册算法切换
+    const hasData = loadHistory();
+    if (hasData) {
+        document.getElementById('storageInfo').textContent = `📦 已加载 ${history.length} 条`;
+        renderAll();
+    } else {
+        document.getElementById('storageInfo').textContent = '📦 无本地数据';
+    }
+
     document.querySelectorAll('.algo-switch button').forEach(btn => {
         btn.addEventListener('click', () => switchAlgo(btn.dataset.algo));
     });
-    // 手动刷新
-    document.getElementById('refreshBtn').addEventListener('click', refreshData);
 
-    // 首次刷新
+    document.getElementById('refreshBtn')?.addEventListener('click', refreshData);
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('importBtn').addEventListener('click', importData);
+    document.getElementById('clearBtn').addEventListener('click', clearHistory);
+
     refreshData();
-    // 自动刷新每3秒
     setInterval(refreshData, 3000);
 }
 
+// 页面加载后初始化
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
