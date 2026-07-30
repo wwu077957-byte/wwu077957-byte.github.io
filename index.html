@@ -37,6 +37,10 @@
         .theme-toggle:active { transform:scale(0.9); }
         .history-trigger-top { background:var(--surface); backdrop-filter:blur(24px); border:1px solid var(--glass); border-radius:100px; padding:8px 18px; font-size:13px; font-weight:800; cursor:pointer; color:var(--text-secondary); transition:all 0.3s; display:flex; align-items:center; gap:6px; }
         .history-trigger-top:active { transform:scale(0.92); }
+        .refresh-area { display:flex; align-items:center; gap:8px; }
+        .refresh-btn { background:var(--surface); backdrop-filter:blur(24px); border:1px solid var(--glass); border-radius:100px; padding:8px 16px; font-size:13px; font-weight:800; cursor:pointer; color:var(--text-secondary); transition:all 0.3s; display:flex; align-items:center; gap:6px; }
+        .refresh-btn:active { transform:scale(0.92); }
+        .refresh-time { font-size:10px; color:var(--text-secondary); opacity:0.7; }
         .brand { text-align:center; padding:10px 0 24px; position:relative; z-index:10; }
         .brand-name { font-size:26px; font-weight:900; letter-spacing:1px; background:linear-gradient(135deg, #0F0F11 0%, #3A3A3C 40%, #0F0F11 60%, #636366 100%); background-size:300% 100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:metalShine 6s infinite linear; display:inline-block; }
         body.dark .brand-name { background:linear-gradient(135deg, #F5F5F7 0%, #AEAEB2 40%, #F5F5F7 60%, #8E8E93 100%); }
@@ -164,7 +168,11 @@
             <div class="island-dot"></div>
             <span>多情集团 · 预测版</span>
         </div>
-        <div style="display:flex; gap:8px; align-items:center;">
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <div class="refresh-area">
+                <button class="refresh-btn" id="refreshBtn">⟳ 刷新</button>
+                <span class="refresh-time" id="lastRefreshTime">--:--:--</span>
+            </div>
             <button class="history-trigger-top" id="historyTriggerTop">📜 历史</button>
             <button class="theme-toggle" id="themeToggle">☀️</button>
         </div>
@@ -250,8 +258,8 @@
     <script>
         // ========== 配置 ==========
         const API_URL = "https://pc28.help/api/kj.json?nbr=30";
-        const STORAGE_KEY = 'duoqing_advanced_v2';
-        const DRAW_PERIOD = 210; // 秒
+        const STORAGE_KEY = 'duoqing_advanced_v4';
+        const DRAW_PERIOD = 210;
 
         // ========== N值表 ==========
         const KILL_MAP = {
@@ -272,7 +280,8 @@
             return KILL_MAP[n] || "小双";
         }
 
-        // ========== 五个算法 ==========
+        // ========== 五个算法(特征索引完全对齐Python) ==========
+        // 期数定义：history[0]=最新期, history[1]=上期, history[2]=上上期, history[3]=上上上期
         function algo_huanqiu(rec) {
             const c1 = rec.c1 || 0, c2 = rec.c2 || 0;
             const val = (Math.sin(c1) * Math.sqrt(c2)) / 3.0;
@@ -301,19 +310,20 @@
         }
 
         const ALGO_MAP = {
-            huanqiu: { name: '换球', func: algo_huanqiu, need: ['c1','c2'] },
-            logc1: { name: 'log10(c1)*3', func: algo_logc1, need: ['c1'] },
-            sqrtc3: { name: '√(c3)*20', func: algo_sqrtc3, need: ['c3'] },
-            sinhtail: { name: 'sinh(tail2)/7', func: algo_sinhtail, need: ['tail2'] },
-            u1: { name: 'U1混沌', func: algo_u1, need: ['S1','A1','S2','C3'] }
+            huanqiu: { name: '换球', func: algo_huanqiu },
+            logc1: { name: 'log10(c1)*3', func: algo_logc1 },
+            sqrtc3: { name: '√(c3)*20', func: algo_sqrtc3 },
+            sinhtail: { name: 'sinh(tail2)/7', func: algo_sinhtail },
+            u1: { name: 'U1混沌', func: algo_u1 }
         };
 
         // ========== 全局状态 ==========
         let currentAlgo = 'huanqiu';
         let history = [];
-        let latestDrawTime = null; // 存储最新一期开奖的Date对象
+        let latestDrawTime = null;
         let isRequesting = false;
         let countdownTimer = null;
+        let autoRefreshTimer = null;
 
         // ========== 存储 ==========
         function loadRecords() {
@@ -355,7 +365,6 @@
                     const nums = item.number.split('+').map(Number);
                     const sum = nums.reduce((a,b) => a+b, 0);
                     const combo = (sum >= 14 ? '大' : '小') + (sum % 2 === 0 ? '双' : '单');
-                    // 尝试解析开奖时间(如果有)
                     let opentime = Date.now();
                     if (item.date && item.time) {
                         try {
@@ -372,10 +381,6 @@
                     };
                 });
                 items.sort((a,b) => parseInt(b.expect) - parseInt(a.expect));
-                // 确保最新一期时间为准
-                if (items.length > 0) {
-                    // 如果第一期的 opentime 是 Date.now() 近似值，我们保留这个值，但会用于倒计时计算
-                }
                 return items;
             } catch(e) {
                 console.error(e);
@@ -383,18 +388,19 @@
             }
         }
 
-        // ========== 计算预测 ==========
+        // ========== 计算预测(修正索引) ==========
         function computePrediction(history, algoKey) {
             if (history.length < 3) return { kill: '--', dual: ['--','--'] };
+            // 最新期: history[0], 上期: history[1], 上上期: history[2], 上上上期: history[3]
             const rec = {
-                c1: history[1]?.nums[2] || 0,
-                c2: history[2]?.nums[2] || 0,
-                c3: history[2]?.nums[2] || 0,
-                tail2: parseInt(history[1]?.expect?.slice(-1)) || 0,
-                S1: history[0]?.sum || 0,
-                A1: history[0]?.nums[0] || 0,
-                S2: history[1]?.sum || 0,
-                C3: history[2]?.nums[2] || 0,
+                c1: history[1]?.nums[2] || 0,       // 上期C
+                c2: history[2]?.nums[2] || 0,       // 上上期C
+                c3: history[2]?.nums[2] || 0,       // 上上期C(sqrtc3用)
+                tail2: parseInt(history[2]?.expect?.slice(-1)) || 0, // 上上期尾数
+                S1: history[0]?.sum || 0,           // 最新期和值
+                A1: history[0]?.nums[0] || 0,       // 最新期A
+                S2: history[1]?.sum || 0,           // 上期和值
+                C3: history[3]?.nums[2] || 0,       // 上上上期C(U1需要)
             };
             const algo = ALGO_MAP[algoKey];
             if (!algo) return { kill: '--', dual: ['--','--'] };
@@ -406,39 +412,36 @@
         // ========== UI 渲染 ==========
         function renderUI(latest) {
             if (!latest) return;
-            // 开奖号码
             document.getElementById('ball1').textContent = latest.nums[0];
             document.getElementById('ball2').textContent = latest.nums[1];
             document.getElementById('ball3').textContent = latest.nums[2];
             document.getElementById('latestPeriod').textContent = latest.expect;
             document.getElementById('latestSum').textContent = latest.sum;
             document.getElementById('latestType').textContent = latest.type;
-            // 存储最新一期开奖时间用于倒计时
             latestDrawTime = new Date(latest.opentime);
-            // 计算预测
+
             const pred = computePrediction(history, currentAlgo);
             const kill = pred.kill;
             const dual = pred.dual;
             document.getElementById('killText').textContent = kill;
             document.getElementById('dualText').textContent = dual.join('/');
             document.getElementById('betText').textContent = dual.join('/');
-            // 记录
+
             const algoName = ALGO_MAP[currentAlgo].name;
             const nextExpect = String(parseInt(latest.expect) + 1);
             addRecord(nextExpect, algoName, kill, dual);
-            // 复制文本
+
             document.getElementById('recordText').value = `杀${kill}🉐${dual.join('')} 13/14`;
-            // 特码示例
             const specials = dual.map(t => {
                 const map = { '小双':[2,4,6], '小单':[1,3,5], '大双':[14,16,18], '大单':[15,17,19] };
                 return (map[t] || []).slice(0,2).map(n=>String(n).padStart(2,'0')).join(',');
             }).join(' ');
             document.getElementById('specialCodesContainer').innerHTML = specials ? `<div class="dock-pill">${specials}</div>` : '';
-            // 更新历史表格
+
             renderHistory();
-            // 倒计时和下一期时间
             startCountdown();
             updateNextTime();
+            updateRefreshTime();
         }
 
         function renderHistory() {
@@ -464,6 +467,11 @@
             }
         }
 
+        function updateRefreshTime() {
+            const now = new Date();
+            document.getElementById('lastRefreshTime').textContent = now.toLocaleTimeString();
+        }
+
         function startCountdown() {
             if (countdownTimer) clearInterval(countdownTimer);
             if (!latestDrawTime) {
@@ -478,14 +486,14 @@
                     `${String(Math.floor(diff/60)).padStart(2,'0')}:${String(diff%60).padStart(2,'0')}`;
                 if (diff <= 0) {
                     clearInterval(countdownTimer);
-                    fetchDataFastest(); // 自动刷新
+                    fetchDataFastest();
                 }
             };
             tick();
             countdownTimer = setInterval(tick, 200);
         }
 
-        // ========== 数据获取与更新 ==========
+        // ========== 核心更新 ==========
         async function fetchDataFastest() {
             if (isRequesting) return;
             isRequesting = true;
@@ -506,6 +514,10 @@
             isRequesting = false;
         }
 
+        function refreshData() {
+            fetchDataFastest();
+        }
+
         // ========== 切换算法 ==========
         function switchAlgo(algoKey) {
             if (algoKey === currentAlgo) return;
@@ -522,8 +534,7 @@
         // ========== 主题切换 ==========
         function toggleTheme() {
             document.body.classList.toggle('dark');
-            const btn = document.getElementById('themeToggle');
-            btn.textContent = document.body.classList.contains('dark') ? '🌙' : '☀️';
+            document.getElementById('themeToggle').textContent = document.body.classList.contains('dark') ? '🌙' : '☀️';
         }
 
         // ========== 历史面板控制 ==========
@@ -536,7 +547,7 @@
             setTimeout(() => document.getElementById('historyOverlay').classList.remove('open'), 100);
         }
 
-        // ========== 启动 & 事件 ==========
+        // ========== 启动 ==========
         function initApp() {
             const splash = document.getElementById('splashScreen');
             const progressFill = document.getElementById('progressFill');
@@ -565,14 +576,16 @@
                 setTimeout(() => {
                     splash.classList.add('hidden');
                     setTimeout(() => { splash.style.display = 'none'; }, 500);
+                    // 启动自动刷新(每10秒)
                     setInterval(() => { if (!isRequesting) fetchDataFastest(); }, 10000);
                 }, 300);
             });
+
             // 算法切换
             document.querySelectorAll('.algo-btn').forEach(btn => {
                 btn.addEventListener('click', () => switchAlgo(btn.dataset.algo));
             });
-            // 主题切换
+            // 主题
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
             // 复制
             document.getElementById('copyBtn').addEventListener('click', () => {
@@ -593,7 +606,9 @@
                 try { document.execCommand('copy'); document.getElementById('toast').classList.add('show'); setTimeout(() => document.getElementById('toast').classList.remove('show'), 2000); } catch(e) {}
                 document.body.removeChild(ta);
             }
-            // 历史触发(顶部和底部按钮)
+            // 手动刷新
+            document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            // 历史
             document.getElementById('historyTriggerTop').addEventListener('click', openHistory);
             document.getElementById('historyTriggerBottom').addEventListener('click', openHistory);
             document.getElementById('historyClose').addEventListener('click', closeHistory);
