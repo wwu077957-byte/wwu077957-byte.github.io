@@ -217,10 +217,8 @@
         </div>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast">✓ 已复制</div>
 
-    <!-- 主应用 -->
     <div class="main-app" id="mainApp">
         <div class="top-bar">
             <div class="brand-mini">⧩ 多情 <span>· 极速</span></div>
@@ -282,7 +280,7 @@
         <div class="panel" id="seedPanel">
             <div class="panel-title">🌱 种子预测</div>
             <div class="seed-flex" style="margin-bottom:8px;">
-                <button class="seed-btn primary" id="seedFetchBtn">📥 拉取数据</button>
+                <button class="seed-btn primary" id="seedFetchBtn">🔄 刷新数据</button>
                 <button class="seed-btn" id="seedScanBtn" disabled>🔍 扫描种子</button>
                 <span class="seed-info" id="seedStatus">等待操作</span>
             </div>
@@ -499,6 +497,7 @@
                 const latest = historyData[0];
                 if (latest) {
                     renderMainUI(latest);
+                    // ★★★ 同步种子数据 ★★★
                     if (window._seedTool && typeof window._seedTool.setHistory === 'function') {
                         window._seedTool.setHistory(historyData);
                     }
@@ -547,7 +546,6 @@
             const nextExpect = String(parseInt(latest.expect) + 1);
             addRecord(nextExpect, currentAlgoKey, pred.kill, pred.dual);
 
-            // ★★★ 显示格式：期号 杀 属性 ★★★
             document.getElementById('recordText').value =
                 `${nextExpect} 杀 ${pred.kill}`;
 
@@ -659,7 +657,7 @@
         }
 
         // ============================================================
-        // 种子预测模块
+        // 种子预测模块 (带自动同步与刷新)
         // ============================================================
         const SEQUENCES = [
             [0, 3, 9, 12, 15, 18, 21, 24, 27],
@@ -717,33 +715,41 @@
         let seedHistory = [];
         let scanning = false;
         let seedDetailVisible = false;
+        let currentBestSeed = null; // 存储当前最佳种子
 
+        // 设置种子历史 (由主刷新调用)
         function setSeedHistory(hist) {
             seedHistory = hist.slice();
             const scanBtn = document.getElementById('seedScanBtn');
             if (seedHistory.length >= 31) {
                 scanBtn.disabled = false;
                 document.getElementById('seedStatus').textContent = `✅ 数据就绪 ${seedHistory.length}期`;
+            } else {
+                scanBtn.disabled = true;
+                document.getElementById('seedStatus').textContent = `⚠️ 数据不足31期 (${seedHistory.length})`;
+            }
+            // ★★★ 如果已有最佳种子，自动重新应用 (刷新预测) ★★★
+            if (currentBestSeed !== null && seedHistory.length > 0) {
+                applyBestSeed(currentBestSeed);
             }
         }
         window._seedTool = { setHistory: setSeedHistory };
 
+        // 种子数据拉取 (复用主数据)
         async function seedFetch() {
             const status = document.getElementById('seedStatus');
-            status.textContent = '⏳ 加载数据...';
-            const data = await fetchMainData();
-            if (data && data.length > 0) {
-                seedHistory = data;
-                status.textContent = `✅ 加载成功，共 ${seedHistory.length} 期`;
-                document.getElementById('seedScanBtn').disabled = (seedHistory.length < 31);
+            status.textContent = '🔄 刷新数据...';
+            // 直接调用主刷新，会同步种子
+            await refreshMain(true);
+            // 但 refreshMain 已经调用了 setHistory，所以这里只需要更新状态
+            status.textContent = `✅ 数据已更新 (${seedHistory.length}期)`;
+            setTimeout(() => {
                 if (seedHistory.length >= 31) {
-                    document.getElementById('seedScanBtn').disabled = false;
+                    status.textContent = `✅ 数据就绪 ${seedHistory.length}期`;
                 } else {
-                    status.textContent = '⚠️ 数据不足31期，无法扫描';
+                    status.textContent = `⚠️ 数据不足31期 (${seedHistory.length})`;
                 }
-            } else {
-                status.textContent = '❌ 数据异常';
-            }
+            }, 1500);
         }
 
         function calcTotalHit(seed, history) {
@@ -808,6 +814,7 @@
                         applyBestSeed(results[0].seed);
                     } else {
                         status.textContent = '⚠️ 未找到符合条件的种子';
+                        currentBestSeed = null;
                     }
                     scanning = false;
                     document.getElementById('seedScanBtn').disabled = false;
@@ -817,6 +824,7 @@
         }
 
         function applyBestSeed(seed) {
+            currentBestSeed = seed;
             const maxN = Math.min(100, seedHistory.length - 1);
             const hit = calcTotalHit(seed, seedHistory);
             document.getElementById('bestSeedInfo').textContent = `最佳种子: ${seed}`;
@@ -913,7 +921,7 @@
                         splash.classList.add('hidden');
                         document.getElementById('mainApp').classList.add('visible');
                         refreshMain();
-                        // ★★★ 自动刷新改为 3 秒 ★★★
+                        // ★★★ 自动刷新 3 秒 ★★★
                         if (refreshTimer) clearInterval(refreshTimer);
                         refreshTimer = setInterval(() => {
                             if (!isRequesting) refreshMain();
@@ -962,7 +970,7 @@
             });
             document.body.classList.add('dark');
 
-            // ★★★ 手动刷新 ★★★
+            // ★★★ 手动刷新 (全局) ★★★
             document.getElementById('manualRefreshBtn').addEventListener('click', () => {
                 refreshMain(true);
             });
@@ -1016,7 +1024,7 @@
                 this.classList.toggle('active', futureVisible);
             });
 
-            // 种子
+            // 种子面板
             let seedVisible = false;
             document.getElementById('toggleSeedBtn').addEventListener('click', function() {
                 seedVisible = !seedVisible;
@@ -1024,23 +1032,27 @@
                 this.textContent = seedVisible ? '🌱 关闭种子' : '🌱 种子预测';
                 this.classList.toggle('active', seedVisible);
                 if (seedVisible && seedHistory.length === 0) {
-                    seedFetch();
+                    seedFetch(); // 首次打开自动刷新数据
                 }
             });
 
+            // 种子刷新按钮 (现在调用 seedFetch)
+            document.getElementById('seedFetchBtn').addEventListener('click', seedFetch);
+
+            // 种子扫描
+            document.getElementById('seedScanBtn').addEventListener('click', scanSeeds);
+
+            // 种子回测折叠
             document.getElementById('seedToggleDetail').addEventListener('click', function() {
                 seedDetailVisible = !seedDetailVisible;
                 document.getElementById('seedDetailWrap').classList.toggle('open', seedDetailVisible);
                 this.textContent = seedDetailVisible ? '📊 隐藏回测详情' : '📊 显示回测详情';
                 this.classList.toggle('active', seedDetailVisible);
             });
-
-            document.getElementById('seedFetchBtn').addEventListener('click', seedFetch);
-            document.getElementById('seedScanBtn').addEventListener('click', scanSeeds);
         });
 
         window._duoqing = { historyData, ALGO_MAP, switchAlgo, refreshMain, seedHistory, scanSeeds };
-        console.log('✅ 极速版已加载 (3秒自动刷新 + 手动刷新)');
+        console.log('✅ 极速版已加载 (3秒自动刷新 + 手动刷新，种子数据同步)');
     </script>
 </body>
 </html>
