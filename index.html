@@ -3,921 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>多情 · 🇨🇦预测系统</title>
+    <title>多情 · 极速预测</title>
     <style>
-        /* ============================================================
-           全局重置 & CSS变量 (保留黑白主题)
-           ============================================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', 'Courier New', monospace;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', 'Courier New', monospace; }
         :root {
-            --bg: #0A0C10;
-            --surface: rgba(20, 30, 45, 0.7);
-            --surface-heavy: rgba(12, 18, 30, 0.9);
-            --text: #E8EDF5;
-            --text-secondary: #7A8AA3;
-            --border: rgba(0, 255, 200, 0.08);
-            --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-            --glass: rgba(0, 255, 200, 0.06);
-            --accent-rose: #FF2D55;
-            --accent-indigo: #00D4FF;
-            --accent-orange: #FF9500;
-            --accent-teal: #00C7BE;
-            --accent-green: #39FF14;
-            --accent-matrix: #0F0;
-            --radius: 32px;
-            --radius-xl: 40px;
+            --bg: #0A0C10; --surface: rgba(20,30,45,0.7); --surface-heavy: rgba(12,18,30,0.9);
+            --text: #E8EDF5; --text-secondary: #7A8AA3; --border: rgba(0,255,200,0.08);
+            --shadow: 0 12px 40px rgba(0,0,0,0.6); --glass: rgba(0,255,200,0.06);
+            --accent-rose: #FF2D55; --accent-indigo: #00D4FF; --accent-orange: #FF9500;
+            --accent-teal: #00C7BE; --accent-green: #39FF14; --radius: 32px; --radius-xl: 40px;
             transition: background 0.3s, color 0.3s;
         }
-        /* 亮色主题 (白) */
         body.light {
-            --bg: #F2F4F8;
-            --surface: rgba(255, 255, 255, 0.7);
-            --surface-heavy: rgba(255, 255, 255, 0.9);
-            --text: #0F0F11;
-            --text-secondary: #6B7280;
-            --border: rgba(0, 0, 0, 0.06);
-            --shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
-            --glass: rgba(255, 255, 255, 0.75);
+            --bg: #F2F4F8; --surface: rgba(255,255,255,0.7); --surface-heavy: rgba(255,255,255,0.9);
+            --text: #0F0F11; --text-secondary: #6B7280; --border: rgba(0,0,0,0.06);
+            --shadow: 0 12px 40px rgba(0,0,0,0.06); --glass: rgba(255,255,255,0.75);
         }
-        /* 暗色主题 (黑) 默认 */
         body.dark {
-            --bg: #0A0C10;
-            --surface: rgba(20, 30, 45, 0.7);
-            --surface-heavy: rgba(12, 18, 30, 0.9);
-            --text: #E8EDF5;
-            --text-secondary: #7A8AA3;
-            --border: rgba(0, 255, 200, 0.08);
-            --glass: rgba(0, 255, 200, 0.06);
+            --bg: #0A0C10; --surface: rgba(20,30,45,0.7); --surface-heavy: rgba(12,18,30,0.9);
+            --text: #E8EDF5; --text-secondary: #7A8AA3; --border: rgba(0,255,200,0.08);
+            --glass: rgba(0,255,200,0.06);
         }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom));
-            transition: background 0.3s, color 0.3s;
-            position: relative;
-            overflow-x: hidden;
-        }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom)); transition: background 0.3s, color 0.3s; position: relative; overflow-x: hidden; }
 
-        /* ============================================================
-           环境背景
-           ============================================================ */
-        .ambient-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .ambient-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.08;
-            animation: blobDrift 35s infinite alternate ease-in-out;
-        }
+        .ambient-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .ambient-blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.08; animation: blobDrift 35s infinite alternate ease-in-out; }
         body.light .ambient-blob { opacity: 0.04; }
-        .ambient-blob:nth-child(1) {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.15), transparent 70%);
-            top: -10%;
-            left: -20%;
-            animation-delay: 0s;
-        }
-        .ambient-blob:nth-child(2) {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(57, 255, 20, 0.08), transparent 70%);
-            bottom: 10%;
-            right: -10%;
-            animation-delay: -12s;
-        }
-        .ambient-blob:nth-child(3) {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255, 45, 85, 0.06), transparent 70%);
-            top: 40%;
-            left: 50%;
-            animation-delay: -24s;
-        }
-        @keyframes blobDrift {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(60px, -60px) scale(1.2); }
-        }
+        .ambient-blob:nth-child(1) { width: 500px; height: 500px; background: radial-gradient(circle, rgba(0,212,255,0.15), transparent 70%); top: -10%; left: -20%; animation-delay: 0s; }
+        .ambient-blob:nth-child(2) { width: 400px; height: 400px; background: radial-gradient(circle, rgba(57,255,20,0.08), transparent 70%); bottom: 10%; right: -10%; animation-delay: -12s; }
+        .ambient-blob:nth-child(3) { width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,45,85,0.06), transparent 70%); top: 40%; left: 50%; animation-delay: -24s; }
+        @keyframes blobDrift { 0%{transform:translate(0,0) scale(1);} 100%{transform:translate(60px,-60px) scale(1.2);} }
 
-        /* ============================================================
-           启动动画 (黑客风)
-           ============================================================ */
-        .splash-screen {
-            position: fixed;
-            inset: 0;
-            background: #05080C;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: default;
-            overflow: hidden;
-        }
-        .splash-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .matrix-rain {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.2;
-            color: rgba(0, 255, 0, 0.06);
-            overflow: hidden;
-            pointer-events: none;
-            white-space: pre;
-            letter-spacing: 4px;
-        }
-        .splash-content {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-        }
-        .splash-logo-wrap { margin-bottom: 30px; position: relative; }
-        .splash-logo {
-            font-size: 72px;
-            font-weight: 900;
-            color: #0F0;
-            text-shadow: 0 0 40px rgba(0, 255, 0, 0.3), 0 0 80px rgba(0, 255, 0, 0.1);
-            letter-spacing: 4px;
-            animation: pulseGlow 2.5s ease-in-out infinite;
-            font-family: 'Courier New', monospace;
-        }
-        .splash-logo-sub {
-            font-size: 14px;
-            color: rgba(0, 255, 0, 0.5);
-            letter-spacing: 8px;
-            text-transform: uppercase;
-            margin-top: 4px;
-            font-family: 'Courier New', monospace;
-        }
-        @keyframes pulseGlow {
-            0%, 100% { text-shadow: 0 0 40px rgba(0,255,0,0.3), 0 0 80px rgba(0,255,0,0.1); }
-            50% { text-shadow: 0 0 60px rgba(0,255,0,0.5), 0 0 120px rgba(0,255,0,0.2); }
-        }
-        .splash-progress-wrap {
-            width: 100%;
-            max-width: 400px;
-            margin: 20px 0 16px;
-        }
-        .splash-progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-family: 'Courier New', monospace;
-            color: rgba(0, 255, 0, 0.5);
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-        }
-        .splash-progress-bg {
-            width: 100%;
-            height: 3px;
-            background: rgba(0, 255, 0, 0.08);
-            border-radius: 2px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.05);
-        }
-        .splash-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #0F0, #39FF14, #0F0);
-            width: 0%;
-            border-radius: 2px;
-            transition: width 0.15s linear;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        }
-        .splash-lines {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            color: rgba(0, 255, 0, 0.4);
-            line-height: 1.8;
-            margin-top: 10px;
-            min-height: 60px;
-            letter-spacing: 0.5px;
-        }
+        /* splash */
+        .splash-screen { position: fixed; inset: 0; background: #05080C; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1); cursor: default; overflow: hidden; }
+        .splash-screen.hidden { opacity: 0; pointer-events: none; }
+        .matrix-rain { position: absolute; inset: 0; z-index: 1; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.2; color: rgba(0,255,0,0.06); overflow: hidden; pointer-events: none; white-space: pre; letter-spacing: 4px; }
+        .splash-content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; max-width: 600px; width: 100%; text-align: center; }
+        .splash-logo-wrap { margin-bottom: 30px; }
+        .splash-logo { font-size: 72px; font-weight: 900; color: #0F0; text-shadow: 0 0 40px rgba(0,255,0,0.3), 0 0 80px rgba(0,255,0,0.1); letter-spacing: 4px; animation: pulseGlow 2.5s ease-in-out infinite; font-family: 'Courier New', monospace; }
+        .splash-logo-sub { font-size: 14px; color: rgba(0,255,0,0.5); letter-spacing: 8px; text-transform: uppercase; margin-top: 4px; font-family: 'Courier New', monospace; }
+        @keyframes pulseGlow { 0%,100%{text-shadow:0 0 40px rgba(0,255,0,0.3),0 0 80px rgba(0,255,0,0.1);} 50%{text-shadow:0 0 60px rgba(0,255,0,0.5),0 0 120px rgba(0,255,0,0.2);} }
+        .splash-progress-wrap { width: 100%; max-width: 400px; margin: 20px 0 16px; }
+        .splash-progress-label { display: flex; justify-content: space-between; font-size: 11px; font-family: 'Courier New', monospace; color: rgba(0,255,0,0.5); letter-spacing: 1px; margin-bottom: 6px; }
+        .splash-progress-bg { width: 100%; height: 3px; background: rgba(0,255,0,0.08); border-radius: 2px; overflow: hidden; }
+        .splash-progress-fill { height: 100%; background: linear-gradient(90deg, #0F0, #39FF14, #0F0); width: 0%; border-radius: 2px; transition: width 0.15s linear; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
+        .splash-lines { font-family: 'Courier New', monospace; font-size: 12px; color: rgba(0,255,0,0.4); line-height: 1.8; margin-top: 10px; min-height: 60px; letter-spacing: 0.5px; }
         .splash-lines .line { opacity: 0; animation: typeIn 0.6s ease forwards; }
-        .splash-lines .line.done { color: rgba(0, 255, 0, 0.7); }
-        .splash-lines .line .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 14px;
-            background: #0F0;
-            vertical-align: middle;
-            animation: blink 0.8s step-end infinite;
-        }
-        @keyframes typeIn {
-            0% { opacity: 0; transform: translateX(10px); }
-            100% { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        .splash-hint {
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: rgba(0, 255, 0, 0.2);
-            margin-top: 24px;
-            letter-spacing: 2px;
-            animation: blink 2s step-end infinite;
-        }
+        .splash-lines .line.done { color: rgba(0,255,0,0.7); }
+        .splash-lines .line .cursor { display: inline-block; width: 8px; height: 14px; background: #0F0; vertical-align: middle; animation: blink 0.8s step-end infinite; }
+        @keyframes typeIn { 0%{opacity:0; transform:translateX(10px);} 100%{opacity:1; transform:translateX(0);} }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+        .splash-hint { font-family: 'Courier New', monospace; font-size: 11px; color: rgba(0,255,0,0.2); margin-top: 24px; letter-spacing: 2px; animation: blink 2s step-end infinite; }
 
-        /* ============================================================
-           主应用
-           ============================================================ */
-        .main-app {
-            position: relative;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.8s ease;
-        }
+        /* main */
+        .main-app { position: relative; z-index: 10; opacity: 0; transition: opacity 0.8s ease; }
         .main-app.visible { opacity: 1; }
 
-        /* 顶部状态栏 */
-        .top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 10px 0 14px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
-        }
-        .top-bar .brand-mini {
-            font-size: 16px;
-            font-weight: 900;
-            color: #0F0;
-            letter-spacing: 2px;
-            font-family: 'Courier New', monospace;
-            text-shadow: 0 0 20px rgba(0, 255, 0, 0.15);
-        }
+        .top-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 0 14px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .top-bar .brand-mini { font-size: 16px; font-weight: 900; color: #0F0; letter-spacing: 2px; font-family: 'Courier New', monospace; text-shadow: 0 0 20px rgba(0,255,0,0.15); }
         body.light .top-bar .brand-mini { color: var(--accent-indigo); text-shadow: none; }
         .top-bar .brand-mini span { color: var(--text-secondary); font-weight: 400; }
-        .top-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .top-clock {
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--accent-teal);
-            background: var(--surface);
-            padding: 6px 16px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            letter-spacing: 1px;
-        }
-        .refresh-status {
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            color: var(--text-secondary);
-            background: var(--surface);
-            padding: 4px 12px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            letter-spacing: 0.5px;
-        }
-        .theme-toggle {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            padding: 6px 14px;
-            font-size: 16px;
-            cursor: pointer;
-            color: var(--text);
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
+        .top-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .top-clock { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700; color: var(--accent-teal); background: var(--surface); padding: 6px 16px; border-radius: 30px; border: 1px solid var(--border); backdrop-filter: blur(10px); letter-spacing: 1px; }
+        .refresh-status { font-family: 'Courier New', monospace; font-size: 10px; color: var(--text-secondary); background: var(--surface); padding: 4px 12px; border-radius: 30px; border: 1px solid var(--border); letter-spacing: 0.5px; }
+        .refresh-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 30px; padding: 6px 14px; font-size: 16px; cursor: pointer; color: var(--text); transition: all 0.3s; backdrop-filter: blur(10px); }
+        .refresh-btn:active { transform: scale(0.92); }
+        .theme-toggle { background: var(--surface); border: 1px solid var(--border); border-radius: 30px; padding: 6px 14px; font-size: 16px; cursor: pointer; color: var(--text); transition: all 0.3s; backdrop-filter: blur(10px); }
         .theme-toggle:active { transform: scale(0.92); }
 
-        /* 算法切换 (顶部) */
-        .algo-bar {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 8px 0 16px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
-        }
-        .algo-btn {
-            background: var(--surface);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 0.3px;
-        }
-        .algo-btn.active {
-            background: rgba(0, 255, 200, 0.12);
-            color: var(--accent-teal);
-            border-color: var(--accent-teal);
-            box-shadow: 0 0 30px rgba(0, 255, 200, 0.05);
-        }
-        body.light .algo-btn.active {
-            background: rgba(0, 212, 255, 0.1);
-            color: var(--accent-indigo);
-            border-color: var(--accent-indigo);
-        }
-        .algo-btn.recommend {
-            border-color: rgba(0, 255, 0, 0.2);
-            color: var(--accent-green);
-        }
-        .algo-btn.recommend.active {
-            background: rgba(57, 255, 20, 0.1);
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-            box-shadow: 0 0 30px rgba(57, 255, 20, 0.05);
-        }
-        body.light .algo-btn.recommend.active {
-            background: rgba(57, 255, 20, 0.08);
-            color: #2E7D32;
-            border-color: #2E7D32;
-        }
+        .algo-bar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding: 8px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .algo-btn { background: var(--surface); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 800; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; font-family: 'Courier New', monospace; letter-spacing: 0.3px; }
+        .algo-btn.active { background: rgba(0,255,200,0.12); color: var(--accent-teal); border-color: var(--accent-teal); box-shadow: 0 0 30px rgba(0,255,200,0.05); }
+        body.light .algo-btn.active { background: rgba(0,212,255,0.1); color: var(--accent-indigo); border-color: var(--accent-indigo); }
+        .algo-btn.recommend { border-color: rgba(0,255,0,0.2); color: var(--accent-green); }
+        .algo-btn.recommend.active { background: rgba(57,255,20,0.1); border-color: var(--accent-green); color: var(--accent-green); box-shadow: 0 0 30px rgba(57,255,20,0.05); }
+        body.light .algo-btn.recommend.active { background: rgba(57,255,20,0.08); color: #2E7D32; border-color: #2E7D32; }
         .algo-btn:active { transform: scale(0.92); }
 
-        /* 开奖显示 */
-        .draw-section {
-            text-align: center;
-            padding: 20px 0 16px;
-            background: var(--surface);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(20px);
-            margin-bottom: 16px;
-        }
-        .draw-header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-        .draw-label {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-        .draw-live {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--accent-green);
-        }
-        .draw-live .dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--accent-green);
-            animation: liveBlink 1.5s infinite;
-        }
-        @keyframes liveBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.2; }
-        }
-        .draw-orbs {
-            display: flex;
-            gap: 18px;
-            justify-content: center;
-            margin: 12px 0 16px;
-        }
-        .draw-orb {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: 900;
-            background: radial-gradient(circle at 35% 35%, #1A2A3A, #0A121E);
-            border: 1px solid var(--border);
-            box-shadow: 0 0 40px rgba(0, 255, 200, 0.03), inset 0 0 60px rgba(0, 255, 200, 0.02);
-            color: var(--text);
-            font-family: 'Courier New', monospace;
-        }
-        body.light .draw-orb {
-            background: radial-gradient(circle at 35% 35%, #FFFFFF, #E8ECF0);
-            border-color: rgba(0, 0, 0, 0.06);
-            color: #0F0F11;
-        }
+        .draw-section { text-align: center; padding: 20px 0 16px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); backdrop-filter: blur(20px); margin-bottom: 16px; }
+        .draw-header { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .draw-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); letter-spacing: 3px; text-transform: uppercase; }
+        .draw-live { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: var(--accent-green); }
+        .draw-live .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-green); animation: liveBlink 1.5s infinite; }
+        @keyframes liveBlink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+        .draw-orbs { display: flex; gap: 18px; justify-content: center; margin: 12px 0 16px; }
+        .draw-orb { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; background: radial-gradient(circle at 35% 35%, #1A2A3A, #0A121E); border: 1px solid var(--border); box-shadow: 0 0 40px rgba(0,255,200,0.03), inset 0 0 60px rgba(0,255,200,0.02); color: var(--text); font-family: 'Courier New', monospace; }
+        body.light .draw-orb { background: radial-gradient(circle at 35% 35%, #FFFFFF, #E8ECF0); border-color: rgba(0,0,0,0.06); color: #0F0F11; }
         .draw-orb:nth-child(2) { animation-delay: -0.3s; }
         .draw-orb:nth-child(3) { animation-delay: -0.6s; }
-        .draw-meta {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
+        .draw-meta { font-size: 13px; color: var(--text-secondary); font-weight: 700; letter-spacing: 0.5px; }
         .draw-meta span { color: var(--text); font-weight: 900; }
 
-        /* 三卫星 */
-        .satellites {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 20px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .satellite {
-            background: var(--surface);
-            border-radius: 24px;
-            padding: 14px 8px;
-            text-align: center;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(12px);
-        }
-        .satellite .val {
-            font-size: 20px;
-            font-weight: 900;
-            font-family: 'Courier New', monospace;
-        }
-        .satellite .lbl {
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 4px;
-        }
+        .satellites { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .satellite { background: var(--surface); border-radius: 24px; padding: 14px 8px; text-align: center; border: 1px solid var(--border); backdrop-filter: blur(12px); }
+        .satellite .val { font-size: 20px; font-weight: 900; font-family: 'Courier New', monospace; }
+        .satellite .lbl { font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
         .sat-rose .val { color: var(--accent-rose); }
         .sat-indigo .val { color: var(--accent-indigo); }
         .sat-orange .val { color: var(--accent-orange); }
 
-        /* 按钮行 */
-        .action-bar {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 16px 0 12px;
-        }
-        .action-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            padding: 8px 20px;
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-            font-family: 'Courier New', monospace;
-            letter-spacing: 0.5px;
-        }
-        .action-btn.active {
-            background: rgba(0, 255, 200, 0.08);
-            color: var(--accent-teal);
-            border-color: var(--accent-teal);
-        }
-        body.light .action-btn.active {
-            background: rgba(0, 212, 255, 0.08);
-            color: var(--accent-indigo);
-            border-color: var(--accent-indigo);
-        }
+        .action-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 16px 0 12px; }
+        .action-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 30px; padding: 8px 20px; font-size: 12px; font-weight: 800; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
+        .action-btn.active { background: rgba(0,255,200,0.08); color: var(--accent-teal); border-color: var(--accent-teal); }
+        body.light .action-btn.active { background: rgba(0,212,255,0.08); color: var(--accent-indigo); border-color: var(--accent-indigo); }
         .action-btn:active { transform: scale(0.92); }
 
-        /* 面板 (未来5期 & 种子) */
-        .panel {
-            background: var(--surface-heavy);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin: 10px 0 16px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(30px);
-            display: none;
-        }
+        .panel { background: var(--surface-heavy); border-radius: var(--radius); padding: 20px; margin: 10px 0 16px; border: 1px solid var(--border); backdrop-filter: blur(30px); display: none; }
         .panel.open { display: block; }
-        .panel-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-align: center;
-            margin-bottom: 14px;
-        }
+        .panel-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 3px; text-align: center; margin-bottom: 14px; }
 
-        .future-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-        }
-        .future-item {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 10px 4px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-        .future-item .p {
-            font-size: 9px;
-            color: var(--text-secondary);
-            font-weight: 700;
-        }
-        .future-item .k {
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--accent-rose);
-            font-family: 'Courier New', monospace;
-            margin-top: 2px;
-        }
+        .future-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .future-item { background: var(--surface); border-radius: 16px; padding: 10px 4px; text-align: center; border: 1px solid var(--border); }
+        .future-item .p { font-size: 9px; color: var(--text-secondary); font-weight: 700; }
+        .future-item .k { font-size: 16px; font-weight: 900; color: var(--accent-rose); font-family: 'Courier New', monospace; margin-top: 2px; }
 
-        /* 种子面板 */
-        .seed-flex {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .seed-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 5px 14px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Courier New', monospace;
-        }
-        .seed-btn.primary {
-            background: rgba(0, 255, 200, 0.08);
-            color: var(--accent-teal);
-            border-color: var(--accent-teal);
-        }
-        body.light .seed-btn.primary {
-            background: rgba(0, 212, 255, 0.08);
-            color: var(--accent-indigo);
-            border-color: var(--accent-indigo);
-        }
+        .seed-flex { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .seed-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 11px; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; font-family: 'Courier New', monospace; }
+        .seed-btn.primary { background: rgba(0,255,200,0.08); color: var(--accent-teal); border-color: var(--accent-teal); }
+        body.light .seed-btn.primary { background: rgba(0,212,255,0.08); color: var(--accent-indigo); border-color: var(--accent-indigo); }
         .seed-btn:active { transform: scale(0.92); }
         .seed-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .seed-progress {
-            height: 3px;
-            background: var(--border);
-            border-radius: 2px;
-            margin: 8px 0;
-            overflow: hidden;
-        }
-        .seed-progress-fill {
-            height: 100%;
-            background: var(--accent-teal);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        .seed-info {
-            font-size: 11px;
-            color: var(--text-secondary);
-            font-family: 'Courier New', monospace;
-        }
-        .seed-grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin: 10px 0;
-        }
-        .seed-type-box {
-            background: var(--surface);
-            border-radius: 14px;
-            padding: 8px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
+        .seed-progress { height: 3px; background: var(--border); border-radius: 2px; margin: 8px 0; overflow: hidden; }
+        .seed-progress-fill { height: 100%; background: var(--accent-teal); width: 0%; transition: width 0.3s; }
+        .seed-info { font-size: 11px; color: var(--text-secondary); font-family: 'Courier New', monospace; }
+        .seed-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+        .seed-type-box { background: var(--surface); border-radius: 14px; padding: 8px; text-align: center; border: 1px solid var(--border); }
         .seed-type-box .lbl { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; }
         .seed-type-box .val { font-size: 18px; font-weight: 900; margin-top: 2px; font-family: 'Courier New', monospace; }
-        .seed-kill {
-            display: inline-block;
-            background: rgba(255, 45, 85, 0.12);
-            color: var(--accent-rose);
-            padding: 4px 16px;
-            border-radius: 30px;
-            font-weight: 900;
-            font-size: 16px;
-            font-family: 'Courier New', monospace;
-            margin-top: 6px;
-            border: 1px solid rgba(255, 45, 85, 0.1);
-        }
+        .seed-kill { display: inline-block; background: rgba(255,45,85,0.12); color: var(--accent-rose); padding: 4px 16px; border-radius: 30px; font-weight: 900; font-size: 16px; font-family: 'Courier New', monospace; margin-top: 6px; border: 1px solid rgba(255,45,85,0.1); }
 
-        /* 种子回测折叠区域 */
-        .seed-toggle-detail {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 8px 18px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Courier New', monospace;
-            margin: 8px 0 4px;
-            text-align: center;
-        }
-        .seed-toggle-detail:hover {
-            border-color: var(--accent-teal);
-            color: var(--accent-teal);
-        }
-        .seed-toggle-detail.active {
-            border-color: var(--accent-teal);
-            color: var(--accent-teal);
-            background: rgba(0, 255, 200, 0.05);
-        }
-        .seed-detail-wrap {
-            display: none;
-            overflow-x: auto;
-            margin-top: 10px;
-        }
+        .seed-toggle-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 18px; font-size: 11px; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; font-family: 'Courier New', monospace; margin: 8px 0 4px; text-align: center; }
+        .seed-toggle-detail:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
+        .seed-toggle-detail.active { border-color: var(--accent-teal); color: var(--accent-teal); background: rgba(0,255,200,0.05); }
+        .seed-detail-wrap { display: none; overflow-x: auto; margin-top: 10px; }
         .seed-detail-wrap.open { display: block; }
-
-        .seed-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 10px;
-            font-family: 'Courier New', monospace;
-        }
-        .seed-table th {
-            padding: 6px 4px;
-            text-align: center;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border);
-            font-weight: 700;
-        }
-        .seed-table td {
-            padding: 6px 4px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            font-weight: 600;
-        }
-        .tag {
-            display: inline-block;
-            background: var(--surface);
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 9px;
-            font-weight: 700;
-            margin: 0 1px;
-        }
+        .seed-table { width: 100%; border-collapse: collapse; font-size: 10px; font-family: 'Courier New', monospace; }
+        .seed-table th { padding: 6px 4px; text-align: center; color: var(--text-secondary); border-bottom: 1px solid var(--border); font-weight: 700; }
+        .seed-table td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border); font-weight: 600; }
+        .tag { display: inline-block; background: var(--surface); padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 700; margin: 0 1px; }
         .win { color: var(--accent-green); }
         .lose { color: var(--accent-rose); }
 
-        /* 底部 Dock */
-        .dock {
-            background: var(--surface-heavy);
-            border-radius: var(--radius);
-            padding: 20px 18px;
-            margin-top: 12px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(30px);
-        }
-        .dock-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .dock-label {
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .dock-countdown {
-            font-size: 36px;
-            font-weight: 900;
-            color: var(--accent-teal);
-            font-family: 'Courier New', monospace;
-            letter-spacing: -2px;
-        }
-        .dock-next-time {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 700;
-        }
-        .dock-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 14px 0;
-        }
-        .scheme-strip {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        .scheme-text {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
-            padding: 14px 18px;
-            font-size: 13px;
-            font-weight: 700;
-            border: 1px solid var(--border);
-            outline: none;
-            color: var(--text);
-            font-family: 'Courier New', monospace;
-            letter-spacing: 0.5px;
-        }
-        body.light .scheme-text { background: rgba(0, 0, 0, 0.04); }
-        .scheme-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: rgba(0, 255, 200, 0.06);
-            color: var(--text);
-            border: 1px solid var(--border);
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
+        .dock { background: var(--surface-heavy); border-radius: var(--radius); padding: 20px 18px; margin-top: 12px; border: 1px solid var(--border); backdrop-filter: blur(30px); }
+        .dock-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .dock-label { font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 2px; }
+        .dock-countdown { font-size: 36px; font-weight: 900; color: var(--accent-teal); font-family: 'Courier New', monospace; letter-spacing: -2px; }
+        .dock-next-time { font-size: 12px; color: var(--text-secondary); font-weight: 700; }
+        .dock-divider { height: 1px; background: var(--border); margin: 14px 0; }
+        .scheme-strip { display: flex; gap: 12px; align-items: center; }
+        .scheme-text { flex: 1; background: rgba(0,0,0,0.2); border-radius: 20px; padding: 14px 18px; font-size: 13px; font-weight: 700; border: 1px solid var(--border); outline: none; color: var(--text); font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
+        body.light .scheme-text { background: rgba(0,0,0,0.04); }
+        .scheme-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,255,200,0.06); color: var(--text); border: 1px solid var(--border); font-size: 18px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .scheme-btn:active { transform: scale(0.85); }
-        .dock-pills {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 6px;
-        }
-        .dock-pill {
-            padding: 6px 14px;
-            border-radius: 16px;
-            background: var(--surface);
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--accent-indigo);
-            border: 1px solid var(--border);
-            font-family: 'Courier New', monospace;
-        }
+        .dock-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+        .dock-pill { padding: 6px 14px; border-radius: 16px; background: var(--surface); font-size: 12px; font-weight: 700; color: var(--accent-indigo); border: 1px solid var(--border); font-family: 'Courier New', monospace; }
 
-        /* 历史触发 */
-        .history-trigger {
-            text-align: center;
-            padding: 20px 0 10px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            cursor: pointer;
-            letter-spacing: 2px;
-            font-family: 'Courier New', monospace;
-            transition: all 0.3s;
-        }
+        .history-trigger { text-align: center; padding: 20px 0 10px; font-size: 11px; font-weight: 700; color: var(--text-secondary); cursor: pointer; letter-spacing: 2px; font-family: 'Courier New', monospace; transition: all 0.3s; }
         .history-trigger:active { opacity: 0.5; transform: scale(0.97); }
 
-        /* 历史模态框 */
-        .history-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(12px);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
+        .history-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
         .history-overlay.open { opacity: 1; pointer-events: auto; }
-        .history-panel {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            top: 10%;
-            background: var(--surface-heavy);
-            backdrop-filter: blur(60px);
-            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-            padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
-            transform: translateY(110%);
-            transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-            overflow-y: auto;
-            z-index: 1000;
-            border-top: 1px solid var(--border);
-        }
+        .history-panel { position: fixed; bottom: 0; left: 0; right: 0; top: 10%; background: var(--surface-heavy); backdrop-filter: blur(60px); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 28px 20px calc(28px + env(safe-area-inset-bottom)); transform: translateY(110%); transition: transform 0.5s cubic-bezier(0.32,0.72,0,1); overflow-y: auto; z-index: 1000; border-top: 1px solid var(--border); }
         .history-panel.open { transform: translateY(0); }
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .history-header h2 {
-            font-size: 18px;
-            font-weight: 900;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 1px;
-        }
-        .history-close {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--text);
-            transition: all 0.2s;
-        }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .history-header h2 { font-size: 18px; font-weight: 900; font-family: 'Courier New', monospace; letter-spacing: 1px; }
+        .history-close { width: 36px; height: 36px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); font-size: 18px; cursor: pointer; color: var(--text); transition: all 0.2s; }
         .history-close:active { transform: scale(0.88); }
-        .history-table-wrap {
-            overflow-x: auto;
-            border-radius: 16px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-        }
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-            font-family: 'Courier New', monospace;
-        }
-        .history-table th {
-            padding: 10px 6px;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border);
-            font-weight: 700;
-            text-align: center;
-        }
-        .history-table td {
-            padding: 10px 6px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            font-weight: 600;
-        }
+        .history-table-wrap { overflow-x: auto; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 11px; font-family: 'Courier New', monospace; }
+        .history-table th { padding: 10px 6px; color: var(--text-secondary); border-bottom: 1px solid var(--border); font-weight: 700; text-align: center; }
+        .history-table td { padding: 10px 6px; text-align: center; border-bottom: 1px solid var(--border); font-weight: 600; }
         .badge-green { color: var(--accent-green); }
         .badge-red { color: var(--accent-rose); }
 
-        /* Toast */
-        .toast {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-120px);
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(20px);
-            color: #0F0;
-            padding: 12px 28px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 700;
-            z-index: 99999;
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0, 255, 0, 0.1);
-            font-family: 'Courier New', monospace;
-            pointer-events: none;
-        }
+        .toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-120px); background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); color: #0F0; padding: 12px 28px; border-radius: 30px; font-size: 12px; font-weight: 700; z-index: 99999; opacity: 0; transition: all 0.5s cubic-bezier(0.4,0,0.2,1); border: 1px solid rgba(0,255,0,0.1); font-family: 'Courier New', monospace; pointer-events: none; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        /* ============================================================
-           响应式
-           ============================================================ */
-        @media (max-width: 480px) {
+        @media (max-width:480px) {
             .draw-orb { width: 60px; height: 60px; font-size: 24px; }
             .draw-orbs { gap: 12px; }
             .satellites { max-width: 100%; }
@@ -931,16 +193,13 @@
     </style>
 </head>
 <body>
-
-    <!-- ============================================================
-       启动动画
-    ============================================================ -->
+    <!-- 启动动画 -->
     <div class="splash-screen" id="splashScreen">
         <div class="matrix-rain" id="matrixRain"></div>
         <div class="splash-content">
             <div class="splash-logo-wrap">
                 <div class="splash-logo">⧩ 多情</div>
-                <div class="splash-logo-sub">· 黑 客 预 测 系 统 ·</div>
+                <div class="splash-logo-sub">· 极速预测 ·</div>
             </div>
             <div class="splash-progress-wrap">
                 <div class="splash-progress-label">
@@ -961,22 +220,18 @@
     <!-- Toast -->
     <div class="toast" id="toast">✓ 已复制</div>
 
-    <!-- ============================================================
-       主应用
-    ============================================================ -->
+    <!-- 主应用 -->
     <div class="main-app" id="mainApp">
-
-        <!-- 顶部栏 -->
         <div class="top-bar">
-            <div class="brand-mini">⧩ 多情 <span>· 预测</span></div>
+            <div class="brand-mini">⧩ 多情 <span>· 极速</span></div>
             <div class="top-right">
                 <div class="top-clock" id="topClock">--:--:--</div>
                 <span class="refresh-status" id="refreshStatus">⏳ 自动刷新中</span>
+                <button class="refresh-btn" id="manualRefreshBtn">🔄</button>
                 <button class="theme-toggle" id="themeToggle">☀️</button>
             </div>
         </div>
 
-        <!-- 算法切换 -->
         <div class="algo-bar" id="algoBar">
             <button class="algo-btn recommend active" data-algo="y">Y算法</button>
             <button class="algo-btn" data-algo="huanqiu">换球</button>
@@ -988,7 +243,6 @@
             <button class="algo-btn" data-algo="wangpai">王牌</button>
         </div>
 
-        <!-- 开奖 -->
         <div class="draw-section">
             <div class="draw-header">
                 <span class="draw-label">最新开奖</span>
@@ -1009,13 +263,11 @@
             </div>
         </div>
 
-        <!-- 按钮 -->
         <div class="action-bar">
             <button class="action-btn" id="toggleFutureBtn">📈 未来5期</button>
             <button class="action-btn" id="toggleSeedBtn">🌱 种子预测</button>
         </div>
 
-        <!-- 未来5期 -->
         <div class="panel" id="futurePanel">
             <div class="panel-title">🔮 未来 5 期预测</div>
             <div class="future-grid" id="futureGrid">
@@ -1027,7 +279,6 @@
             </div>
         </div>
 
-        <!-- 种子预测 -->
         <div class="panel" id="seedPanel">
             <div class="panel-title">🌱 种子预测</div>
             <div class="seed-flex" style="margin-bottom:8px;">
@@ -1043,8 +294,6 @@
             </div>
             <div class="seed-grid-3" id="seedGroupsDisplay"></div>
             <div style="text-align:center;"><span class="seed-kill" id="seedKillDisplay">--</span></div>
-
-            <!-- 回测详情折叠按钮 -->
             <div class="seed-toggle-detail" id="seedToggleDetail">📊 显示回测详情</div>
             <div class="seed-detail-wrap" id="seedDetailWrap">
                 <div class="seed-table-wrap">
@@ -1056,7 +305,6 @@
             </div>
         </div>
 
-        <!-- Dock -->
         <div class="dock">
             <div class="dock-row">
                 <span class="dock-label">下一期倒计时</span>
@@ -1074,11 +322,9 @@
             <div class="dock-pills" id="specialCodesContainer"></div>
         </div>
 
-        <!-- 历史 -->
         <div class="history-trigger" id="historyTrigger">⏳ 查看验证记录</div>
     </div>
 
-    <!-- 历史模态框 -->
     <div class="history-overlay" id="historyOverlay"></div>
     <div class="history-panel" id="historyPanel">
         <div class="history-header">
@@ -1205,7 +451,7 @@
 
         async function fetchMainData() {
             try {
-                const resp = await fetch(API_URL, { signal: AbortSignal.timeout(15000) });
+                const resp = await fetch(API_URL, { signal: AbortSignal.timeout(10000) });
                 if (!resp.ok) throw new Error('网络错误');
                 const json = await resp.json();
                 if (json.code === 1 && json.data && json.data.length > 0) {
@@ -1231,9 +477,9 @@
         }
 
         // ============================================================
-        // 主刷新 (带状态提示)
+        // 主刷新 (带手动刷新)
         // ============================================================
-        async function refreshMain() {
+        async function refreshMain(manual = false) {
             if (isRequesting) return;
             isRequesting = true;
             const statusEl = document.getElementById('refreshStatus');
@@ -1262,14 +508,14 @@
                 setTimeout(() => {
                     statusEl.textContent = '⏳ 自动刷新中';
                     statusEl.style.color = 'var(--text-secondary)';
-                }, 2000);
+                }, 1500);
             } else {
                 statusEl.textContent = '⚠️ 刷新失败';
                 statusEl.style.color = 'var(--accent-rose)';
                 setTimeout(() => {
                     statusEl.textContent = '⏳ 自动刷新中';
                     statusEl.style.color = 'var(--text-secondary)';
-                }, 3000);
+                }, 2500);
             }
             isRequesting = false;
         }
@@ -1301,8 +547,10 @@
             const nextExpect = String(parseInt(latest.expect) + 1);
             addRecord(nextExpect, currentAlgoKey, pred.kill, pred.dual);
 
+            // ★★★ 显示格式：期号 杀 属性 ★★★
             document.getElementById('recordText').value =
-                `杀${pred.kill} 双${pred.dual.join('/')} (${algoName})`;
+                `${nextExpect} 杀 ${pred.kill}`;
+
             const specials = pred.dual.map(t => {
                 const map = { '小双': [2, 4, 6], '小单': [1, 3, 5], '大双': [14, 16, 18], '大单': [15, 17, 19] };
                 return (map[t] || []).slice(0, 2).map(n => String(n).padStart(2, '0')).join(',');
@@ -1665,11 +913,11 @@
                         splash.classList.add('hidden');
                         document.getElementById('mainApp').classList.add('visible');
                         refreshMain();
-                        // 自动刷新每15秒
+                        // ★★★ 自动刷新改为 3 秒 ★★★
                         if (refreshTimer) clearInterval(refreshTimer);
                         refreshTimer = setInterval(() => {
                             if (!isRequesting) refreshMain();
-                        }, 15000);
+                        }, 3000);
                     }, 600);
                 }
             }
@@ -1697,7 +945,7 @@
                 btn.addEventListener('click', () => switchAlgo(btn.dataset.algo));
             });
 
-            // 主题切换 (黑白)
+            // 主题切换
             document.getElementById('themeToggle').addEventListener('click', () => {
                 if (document.body.classList.contains('dark')) {
                     document.body.classList.remove('dark');
@@ -1712,8 +960,12 @@
                     document.getElementById('themeToggle').textContent = '☀️';
                 }
             });
-            // 默认暗色
             document.body.classList.add('dark');
+
+            // ★★★ 手动刷新 ★★★
+            document.getElementById('manualRefreshBtn').addEventListener('click', () => {
+                refreshMain(true);
+            });
 
             // 复制
             document.getElementById('copyBtn').addEventListener('click', () => {
@@ -1764,7 +1016,7 @@
                 this.classList.toggle('active', futureVisible);
             });
 
-            // 种子预测
+            // 种子
             let seedVisible = false;
             document.getElementById('toggleSeedBtn').addEventListener('click', function() {
                 seedVisible = !seedVisible;
@@ -1776,7 +1028,6 @@
                 }
             });
 
-            // 种子回测详情折叠
             document.getElementById('seedToggleDetail').addEventListener('click', function() {
                 seedDetailVisible = !seedDetailVisible;
                 document.getElementById('seedDetailWrap').classList.toggle('open', seedDetailVisible);
@@ -1789,7 +1040,7 @@
         });
 
         window._duoqing = { historyData, ALGO_MAP, switchAlgo, refreshMain, seedHistory, scanSeeds };
-        console.log('✅ 黑客预测系统已加载 (黑白主题 + 折叠回测)');
+        console.log('✅ 极速版已加载 (3秒自动刷新 + 手动刷新)');
     </script>
 </body>
 </html>
