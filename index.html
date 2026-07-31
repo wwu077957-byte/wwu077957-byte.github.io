@@ -3,249 +3,1087 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>多情 · 加拿大28 高级版</title>
+    <title>多情 · 🇨🇦预测系统</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', 'Helvetica Neue', sans-serif; }
+        /* ============================================================
+           全局重置 & CSS变量 (保留黑白主题)
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', 'Courier New', monospace;
+        }
         :root {
-            --bg: #F2F4F8; --surface: rgba(255,255,255,0.65); --surface-heavy: rgba(255,255,255,0.85);
-            --text: #0F0F11; --text-secondary: #6B7280; --border: rgba(0,0,0,0.06);
-            --shadow: 0 12px 40px rgba(0,0,0,0.06); --glass: rgba(255,255,255,0.75);
-            --accent-rose: #FF2D55; --accent-indigo: #5856D6; --accent-orange: #FF9500;
-            --accent-teal: #00C7BE; --accent-green: #34C759; --radius: 32px; --radius-xl: 40px;
+            --bg: #0A0C10;
+            --surface: rgba(20, 30, 45, 0.7);
+            --surface-heavy: rgba(12, 18, 30, 0.9);
+            --text: #E8EDF5;
+            --text-secondary: #7A8AA3;
+            --border: rgba(0, 255, 200, 0.08);
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            --glass: rgba(0, 255, 200, 0.06);
+            --accent-rose: #FF2D55;
+            --accent-indigo: #00D4FF;
+            --accent-orange: #FF9500;
+            --accent-teal: #00C7BE;
+            --accent-green: #39FF14;
+            --accent-matrix: #0F0;
+            --radius: 32px;
+            --radius-xl: 40px;
             transition: background 0.3s, color 0.3s;
         }
-        body.dark {
-            --bg: #0F0F11; --surface: rgba(28,28,30,0.65); --surface-heavy: rgba(28,28,30,0.85);
-            --text: #F5F5F7; --text-secondary: #8E8E93; --border: rgba(255,255,255,0.06);
-            --shadow: 0 12px 40px rgba(0,0,0,0.4); --glass: rgba(44,44,46,0.75);
+        /* 亮色主题 (白) */
+        body.light {
+            --bg: #F2F4F8;
+            --surface: rgba(255, 255, 255, 0.7);
+            --surface-heavy: rgba(255, 255, 255, 0.9);
+            --text: #0F0F11;
+            --text-secondary: #6B7280;
+            --border: rgba(0, 0, 0, 0.06);
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+            --glass: rgba(255, 255, 255, 0.75);
         }
-        body { background: var(--bg); color: var(--text); min-height:100vh; display:flex; flex-direction:column; padding: env(safe-area-inset-top) 20px calc(20px + env(safe-area-inset-bottom)); transition: background 0.3s, color 0.3s; position:relative; }
-        .ambient-bg { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-        .ambient-blob { position:absolute; border-radius:50%; filter:blur(100px); opacity:0.25; animation:blobDrift 25s infinite alternate ease-in-out; }
-        body.dark .ambient-blob { opacity:0.15; }
-        .ambient-blob:nth-child(1) { width:350px; height:350px; background:radial-gradient(circle,rgba(88,86,214,0.2),transparent 70%); top:-5%; left:-15%; animation-delay:0s; }
-        .ambient-blob:nth-child(2) { width:280px; height:280px; background:radial-gradient(circle,rgba(0,199,190,0.15),transparent 70%); bottom:15%; right:-10%; animation-delay:-8s; }
-        .ambient-blob:nth-child(3) { width:220px; height:220px; background:radial-gradient(circle,rgba(255,149,0,0.12),transparent 70%); top:45%; left:60%; animation-delay:-16s; }
-        @keyframes blobDrift { 0%{transform:translate(0,0) scale(1);} 100%{transform:translate(40px,-40px) scale(1.15);} }
-        .noise-overlay { position:fixed; inset:0; z-index:1; pointer-events:none; opacity:0.025; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E"); background-repeat:repeat; background-size:256px; }
-        .status-island { position:relative; z-index:10; display:flex; align-items:center; justify-content:space-between; padding:14px 0 18px; flex-wrap:wrap; gap:8px; }
-        .island-pill { background:var(--surface); backdrop-filter:blur(24px) saturate(150%); border:1px solid var(--glass); box-shadow:0 4px 24px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9); border-radius:100px; padding:8px 20px; display:flex; align-items:center; gap:10px; font-size:12px; font-weight:700; color:var(--text-secondary); letter-spacing:0.5px; }
-        .island-dot { width:7px; height:7px; border-radius:50%; background:var(--accent-green); box-shadow:0 0 10px rgba(52,199,89,0.6); position:relative; }
-        .island-dot::after { content:''; position:absolute; inset:-4px; border-radius:50%; border:1.5px solid var(--accent-green); opacity:0; animation:pulseRing 2.5s infinite cubic-bezier(0.4,0,0.6,1); }
-        @keyframes pulseRing { 0%{transform:scale(0.7); opacity:0.5;} 100%{transform:scale(1.8); opacity:0;} }
-        .theme-toggle { background:var(--surface); backdrop-filter:blur(24px); border:1px solid var(--glass); border-radius:100px; padding:8px 16px; font-size:18px; cursor:pointer; color:var(--text); transition:all 0.3s; }
-        .theme-toggle:active { transform:scale(0.9); }
-        .history-trigger-top { background:var(--surface); backdrop-filter:blur(24px); border:1px solid var(--glass); border-radius:100px; padding:8px 18px; font-size:13px; font-weight:800; cursor:pointer; color:var(--text-secondary); transition:all 0.3s; display:flex; align-items:center; gap:6px; }
-        .history-trigger-top:active { transform:scale(0.92); }
-        .refresh-area { display:flex; align-items:center; gap:8px; }
-        .refresh-btn { background:var(--surface); backdrop-filter:blur(24px); border:1px solid var(--glass); border-radius:100px; padding:8px 16px; font-size:13px; font-weight:800; cursor:pointer; color:var(--text-secondary); transition:all 0.3s; display:flex; align-items:center; gap:6px; }
-        .refresh-btn:active { transform:scale(0.92); }
-        .refresh-time { font-size:10px; color:var(--text-secondary); opacity:0.7; }
-        .brand { text-align:center; padding:10px 0 24px; position:relative; z-index:10; }
-        .brand-name { font-size:26px; font-weight:900; letter-spacing:1px; background:linear-gradient(135deg, #0F0F11 0%, #3A3A3C 40%, #0F0F11 60%, #636366 100%); background-size:300% 100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:metalShine 6s infinite linear; display:inline-block; }
-        body.dark .brand-name { background:linear-gradient(135deg, #F5F5F7 0%, #AEAEB2 40%, #F5F5F7 60%, #8E8E93 100%); }
-        @keyframes metalShine { 0%{background-position:300% 0;} 100%{background-position:-300% 0;} }
-        .brand-sub { font-size:10px; color:var(--text-secondary); opacity:0.7; margin-top:8px; font-weight:700; letter-spacing:4px; text-transform:uppercase; }
-        .brand-badge { display:inline-flex; align-items:center; gap:6px; margin-top:12px; background:linear-gradient(135deg, rgba(255,45,85,0.06), rgba(255,149,0,0.04)); border:1px solid rgba(255,45,85,0.1); color:var(--accent-rose); padding:5px 14px; border-radius:100px; font-size:10px; font-weight:800; backdrop-filter:blur(10px); letter-spacing:0.5px; }
-        .algo-switch { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:20px; z-index:10; position:relative; }
-        .algo-btn { background:var(--surface); backdrop-filter:blur(16px); border:1px solid var(--glass); border-radius:30px; padding:8px 16px; font-size:12px; font-weight:800; color:var(--text-secondary); cursor:pointer; transition:all 0.3s; box-shadow:var(--shadow); }
-        .algo-btn.active { background:var(--accent-indigo); color:white; border-color:var(--accent-indigo); box-shadow:0 4px 16px rgba(88,86,214,0.3); }
-        .algo-btn:active { transform:scale(0.92); }
-        .stage { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:30vh; padding:10px 0; position:relative; z-index:10; width:100%; }
-        .stage-header { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
-        .stage-label { font-size:10px; font-weight:800; color:var(--text-secondary); letter-spacing:3px; text-transform:uppercase; }
-        .stage-live { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:800; color:var(--accent-rose); background:rgba(255,45,85,0.06); padding:4px 12px; border-radius:100px; letter-spacing:1px; }
-        .live-dot { width:5px; height:5px; border-radius:50%; background:var(--accent-rose); animation:liveBlink 2s infinite; }
-        @keyframes liveBlink { 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.3; transform:scale(0.8);} }
-        .draw-orb-group { display:flex; gap:22px; margin-bottom:28px; position:relative; }
-        .draw-orb { width:90px; height:90px; border-radius:50%; position:relative; background:radial-gradient(circle at 32% 32%, #FFFFFF 0%, #F5F5F7 40%, #E8E8ED 100%); display:flex; align-items:center; justify-content:center; font-size:38px; font-weight:900; color:var(--text); letter-spacing:-1px; box-shadow:0 24px 48px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.08), inset 0 -8px 16px rgba(0,0,0,0.04), inset 0 8px 16px rgba(255,255,255,0.95), inset 0 0 0 1px rgba(255,255,255,0.9); border:none; animation:orbFloat 6s ease-in-out infinite; transform-style:preserve-3d; transition:transform 0.3s; }
-        body.dark .draw-orb { background:radial-gradient(circle at 32% 32%, #3A3A3C 0%, #1C1C1E 60%, #0F0F11 100%); color:#F5F5F7; box-shadow:0 24px 48px rgba(0,0,0,0.4), inset 0 -8px 16px rgba(0,0,0,0.2), inset 0 8px 16px rgba(255,255,255,0.05); }
-        .draw-orb::before { content:''; position:absolute; top:10%; left:16%; width:30%; height:22%; background:radial-gradient(ellipse, rgba(255,255,255,0.98), transparent 60%); border-radius:50%; filter:blur(1px); pointer-events:none; }
-        body.dark .draw-orb::before { background:radial-gradient(ellipse, rgba(255,255,255,0.1), transparent 60%); }
-        .draw-orb::after { content:''; position:absolute; bottom:6%; left:22%; width:56%; height:18%; background:radial-gradient(ellipse, rgba(0,0,0,0.05), transparent 70%); border-radius:50%; filter:blur(3px); pointer-events:none; }
-        .draw-orb:nth-child(2) { animation-delay:-2s; }
-        .draw-orb:nth-child(3) { animation-delay:-4s; }
-        @keyframes orbFloat { 0%,100%{transform:translateY(0) rotateX(0) rotateY(0);} 50%{transform:translateY(-12px) rotateX(3deg) rotateY(2deg);} }
-        .draw-orb.pop { animation:orbPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-        @keyframes orbPop { 0%{transform:scale(0.8);} 50%{transform:scale(1.1);} 100%{transform:scale(1);} }
-        .draw-meta { font-size:14px; color:var(--text-secondary); font-weight:700; text-align:center; letter-spacing:-0.2px; background:var(--surface); backdrop-filter:blur(16px); padding:12px 24px; border-radius:100px; border:1px solid var(--glass); box-shadow:var(--shadow); }
-        .draw-meta span { color:var(--text); font-weight:900; margin:0 3px; }
-        .satellites { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:32px; width:100%; max-width:400px; position:relative; z-index:10; }
-        .satellite { aspect-ratio:1; border-radius:28px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px; position:relative; overflow:hidden; background:var(--surface); backdrop-filter:blur(50px) saturate(200%); border:1px solid var(--glass); box-shadow:var(--shadow); transition:all 0.5s cubic-bezier(0.4,0,0.2,1); }
-        .satellite::before { content:''; position:absolute; top:0; left:0; right:0; height:45%; background:linear-gradient(180deg, rgba(255,255,255,0.3), transparent); pointer-events:none; z-index:1; }
-        body.dark .satellite::before { background:linear-gradient(180deg, rgba(255,255,255,0.05), transparent); }
-        .satellite:active { transform:scale(0.94) translateY(1px); }
-        .sat-rose .sat-value { color:var(--accent-rose); text-shadow:0 2px 8px rgba(255,45,85,0.15); }
-        .sat-indigo .sat-value { color:var(--accent-indigo); text-shadow:0 2px 8px rgba(88,86,214,0.15); }
-        .sat-orange .sat-value { color:var(--accent-orange); text-shadow:0 2px 8px rgba(255,149,0,0.15); }
-        .sat-value { font-size:clamp(14px, 3.8vw, 18px); font-weight:900; text-align:center; white-space:nowrap; letter-spacing:-0.5px; position:relative; z-index:2; }
-        .sat-label { font-size:10px; font-weight:800; color:var(--text-secondary); margin-top:10px; letter-spacing:1px; text-transform:uppercase; position:relative; z-index:2; }
-        .dock { background:var(--surface-heavy); backdrop-filter:blur(60px) saturate(220%); border-radius:var(--radius-xl); padding:28px 24px; margin-top:auto; box-shadow:var(--shadow-lg), 0 0 0 1px var(--glass); border:1px solid var(--glass); width:100%; max-width:500px; margin-left:auto; margin-right:auto; position:relative; z-index:10; }
-        .dock::before { content:''; position:absolute; top:0; left:30%; right:30%; height:1px; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); }
-        .dock-section { margin-bottom:24px; }
-        .dock-section:last-child { margin-bottom:0; }
-        .dock-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; }
-        .dock-section-title { font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; letter-spacing:2px; }
-        .dock-countdown-wrap { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-        .dock-countdown { font-size:48px; font-weight:900; color:var(--accent-teal); font-variant-numeric:tabular-nums; letter-spacing:-3px; line-height:1; text-shadow:0 2px 12px rgba(0,199,190,0.15); }
-        .dock-next-time { font-size:14px; color:var(--text-secondary); font-weight:700; margin-left:auto; }
-        .dock-divider { height:1px; background:linear-gradient(90deg, transparent, var(--border), transparent); margin:20px 0; }
-        .scheme-strip { display:flex; gap:14px; align-items:center; }
-        .scheme-text { flex:1; background:rgba(0,0,0,0.02); border-radius:24px; padding:18px 22px; font-size:15px; font-weight:800; border:1px solid var(--border); outline:none; color:var(--text); box-shadow:inset 0 1px 3px rgba(0,0,0,0.02); }
-        .scheme-btn { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #0F0F11, #1C1C1E); color:white; border:none; font-size:22px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.4s cubic-bezier(0.4,0,0.2,1); box-shadow:0 8px 24px rgba(0,0,0,0.2); flex-shrink:0; position:relative; overflow:hidden; }
-        .scheme-btn::after { content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 60%); pointer-events:none; }
-        .scheme-btn:active { transform:scale(0.82); box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-        .dock-pills { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:4px; }
-        .dock-pill { padding:10px 18px; border-radius:20px; background:var(--surface); font-size:14px; font-weight:800; color:var(--accent-indigo); border:1px solid var(--border); transition:all 0.3s; backdrop-filter:blur(10px); }
-        .history-trigger-bottom { text-align:center; padding:28px 16px 24px; font-size:13px; font-weight:800; color:var(--text-secondary); cursor:pointer; letter-spacing:0.5px; transition:all 0.3s; position:relative; z-index:10; display:flex; align-items:center; justify-content:center; gap:8px; }
-        .history-trigger-bottom:active { opacity:0.5; transform:scale(0.97); }
-        .history-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.15); backdrop-filter:blur(12px); z-index:99; opacity:0; pointer-events:none; transition:opacity 0.5s ease; }
-        .history-modal-overlay.open { opacity:1; pointer-events:auto; }
-        .history-panel { position:fixed; bottom:0; left:0; right:0; top:6%; background:var(--surface-heavy); backdrop-filter:blur(80px) saturate(240%); border-radius:var(--radius-xl) var(--radius-xl) 0 0; padding:32px 24px calc(32px + env(safe-area-inset-bottom)); box-shadow:0 -24px 80px rgba(0,0,0,0.12); transform:translateY(110%); transition:transform 0.6s cubic-bezier(0.32,0.72,0,1); overflow-y:auto; z-index:100; border-top:1px solid var(--glass); display:flex; flex-direction:column; }
-        .history-panel.open { transform:translateY(0); }
-        .history-panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-shrink:0; }
-        .history-panel-title { font-size:26px; font-weight:900; letter-spacing:-0.5px; }
-        .history-panel-close { width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,0.04); border:none; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; color:var(--text); }
-        .history-panel-close:active { background:rgba(0,0,0,0.1); transform:scale(0.88); }
-        .history-table-wrap { flex:1; overflow-y:auto; border-radius:24px; background:var(--surface); border:1px solid var(--border); }
-        .history-table { width:100%; border-collapse:separate; border-spacing:0; font-size:12px; }
-        .history-table th { padding:16px 8px; background:rgba(0,0,0,0.02); font-weight:800; color:var(--text-secondary); border-bottom:1px solid var(--border); position:sticky; top:0; backdrop-filter:blur(10px); z-index:2; letter-spacing:0.5px; }
-        .history-table td { padding:14px 8px; text-align:center; border-bottom:1px solid var(--border); font-weight:700; }
-        .badge-green { color:var(--accent-green); background:rgba(52,199,89,0.08); padding:4px 12px; border-radius:12px; font-size:11px; display:inline-block; border:1px solid rgba(52,199,89,0.12); }
-        .badge-red { color:var(--accent-rose); background:rgba(255,45,85,0.08); padding:4px 12px; border-radius:12px; font-size:11px; display:inline-block; border:1px solid rgba(255,45,85,0.12); }
-        .splash-screen { position:fixed; top:0; left:0; width:100%; height:100vh; background:var(--bg); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity 0.7s cubic-bezier(0.4,0,0.2,1); cursor:pointer; }
-        .splash-screen.hidden { opacity:0; pointer-events:none; }
-        .splash-logo { width:120px; height:120px; border-radius:40px; background:linear-gradient(135deg, #FFFFFF 0%, #F2F2F7 100%); display:flex; align-items:center; justify-content:center; font-size:56px; font-weight:900; color:var(--text); box-shadow:0 20px 60px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9); margin-bottom:36px; position:relative; animation:splashFloat 3s ease-in-out infinite; }
-        body.dark .splash-logo { background:linear-gradient(135deg, #2C2C2E 0%, #1C1C1E 100%); color:#F5F5F7; }
-        @keyframes splashFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
-        .splash-name { font-size:32px; font-weight:900; margin-bottom:8px; letter-spacing:-0.5px; }
-        .splash-sub { color:var(--text-secondary); font-size:13px; font-weight:700; margin-bottom:48px; letter-spacing:4px; text-transform:uppercase; }
-        .splash-info { background:var(--surface); border-radius:28px; padding:24px 36px; margin-bottom:48px; text-align:center; backdrop-filter:blur(24px); border:1px solid var(--glass); box-shadow:var(--shadow); }
-        .splash-info p { color:var(--text-secondary); font-size:12px; line-height:1.9; font-weight:700; }
-        .splash-info strong { color:var(--text); font-weight:900; }
-        .splash-info .contact { color:var(--accent-indigo); font-weight:900; }
-        .splash-progress-wrap { width:240px; text-align:center; }
-        .splash-progress-bg { width:100%; height:5px; background:#E5E5EA; border-radius:3px; overflow:hidden; margin-bottom:14px; }
-        body.dark .splash-progress-bg { background:#2C2C2E; }
-        .splash-progress-fill { height:5px; background:linear-gradient(90deg, #0F0F11, #3A3A3C); border-radius:3px; transition:width 0.08s linear; width:0%; }
-        .toast { position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-120px); background:linear-gradient(135deg, rgba(15,15,17,0.92), rgba(28,28,30,0.92)); backdrop-filter:blur(24px); color:white; padding:14px 28px; border-radius:100px; font-size:13px; font-weight:800; z-index:10000; opacity:0; transition:all 0.5s cubic-bezier(0.4,0,0.2,1); box-shadow:0 12px 40px rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); pointer-events:none; display:flex; align-items:center; gap:10px; letter-spacing:0.3px; }
-        .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-        .toast-icon { width:20px; height:20px; background:var(--accent-green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
-        .fade-in-up { animation:fadeInUp 0.8s cubic-bezier(0.4,0,0.2,1) forwards; opacity:0; transform:translateY(20px); }
-        @keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
-        .delay-1 { animation-delay:0.1s; }
-        .delay-2 { animation-delay:0.2s; }
-        .delay-3 { animation-delay:0.3s; }
-        .delay-4 { animation-delay:0.4s; }
+        /* 暗色主题 (黑) 默认 */
+        body.dark {
+            --bg: #0A0C10;
+            --surface: rgba(20, 30, 45, 0.7);
+            --surface-heavy: rgba(12, 18, 30, 0.9);
+            --text: #E8EDF5;
+            --text-secondary: #7A8AA3;
+            --border: rgba(0, 255, 200, 0.08);
+            --glass: rgba(0, 255, 200, 0.06);
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom));
+            transition: background 0.3s, color 0.3s;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ============================================================
+           环境背景
+           ============================================================ */
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .ambient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.08;
+            animation: blobDrift 35s infinite alternate ease-in-out;
+        }
+        body.light .ambient-blob { opacity: 0.04; }
+        .ambient-blob:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.15), transparent 70%);
+            top: -10%;
+            left: -20%;
+            animation-delay: 0s;
+        }
+        .ambient-blob:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(57, 255, 20, 0.08), transparent 70%);
+            bottom: 10%;
+            right: -10%;
+            animation-delay: -12s;
+        }
+        .ambient-blob:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 45, 85, 0.06), transparent 70%);
+            top: 40%;
+            left: 50%;
+            animation-delay: -24s;
+        }
+        @keyframes blobDrift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, -60px) scale(1.2); }
+        }
+
+        /* ============================================================
+           启动动画 (黑客风)
+           ============================================================ */
+        .splash-screen {
+            position: fixed;
+            inset: 0;
+            background: #05080C;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+            overflow: hidden;
+        }
+        .splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .matrix-rain {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.2;
+            color: rgba(0, 255, 0, 0.06);
+            overflow: hidden;
+            pointer-events: none;
+            white-space: pre;
+            letter-spacing: 4px;
+        }
+        .splash-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .splash-logo-wrap { margin-bottom: 30px; position: relative; }
+        .splash-logo {
+            font-size: 72px;
+            font-weight: 900;
+            color: #0F0;
+            text-shadow: 0 0 40px rgba(0, 255, 0, 0.3), 0 0 80px rgba(0, 255, 0, 0.1);
+            letter-spacing: 4px;
+            animation: pulseGlow 2.5s ease-in-out infinite;
+            font-family: 'Courier New', monospace;
+        }
+        .splash-logo-sub {
+            font-size: 14px;
+            color: rgba(0, 255, 0, 0.5);
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { text-shadow: 0 0 40px rgba(0,255,0,0.3), 0 0 80px rgba(0,255,0,0.1); }
+            50% { text-shadow: 0 0 60px rgba(0,255,0,0.5), 0 0 120px rgba(0,255,0,0.2); }
+        }
+        .splash-progress-wrap {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px 0 16px;
+        }
+        .splash-progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            color: rgba(0, 255, 0, 0.5);
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .splash-progress-bg {
+            width: 100%;
+            height: 3px;
+            background: rgba(0, 255, 0, 0.08);
+            border-radius: 2px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.05);
+        }
+        .splash-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0F0, #39FF14, #0F0);
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.15s linear;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        .splash-lines {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: rgba(0, 255, 0, 0.4);
+            line-height: 1.8;
+            margin-top: 10px;
+            min-height: 60px;
+            letter-spacing: 0.5px;
+        }
+        .splash-lines .line { opacity: 0; animation: typeIn 0.6s ease forwards; }
+        .splash-lines .line.done { color: rgba(0, 255, 0, 0.7); }
+        .splash-lines .line .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: #0F0;
+            vertical-align: middle;
+            animation: blink 0.8s step-end infinite;
+        }
+        @keyframes typeIn {
+            0% { opacity: 0; transform: translateX(10px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .splash-hint {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: rgba(0, 255, 0, 0.2);
+            margin-top: 24px;
+            letter-spacing: 2px;
+            animation: blink 2s step-end infinite;
+        }
+
+        /* ============================================================
+           主应用
+           ============================================================ */
+        .main-app {
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .main-app.visible { opacity: 1; }
+
+        /* 顶部状态栏 */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 0 14px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+        .top-bar .brand-mini {
+            font-size: 16px;
+            font-weight: 900;
+            color: #0F0;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.15);
+        }
+        body.light .top-bar .brand-mini { color: var(--accent-indigo); text-shadow: none; }
+        .top-bar .brand-mini span { color: var(--text-secondary); font-weight: 400; }
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .top-clock {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-teal);
+            background: var(--surface);
+            padding: 6px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            letter-spacing: 1px;
+        }
+        .refresh-status {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: var(--text-secondary);
+            background: var(--surface);
+            padding: 4px 12px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            letter-spacing: 0.5px;
+        }
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 6px 14px;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .theme-toggle:active { transform: scale(0.92); }
+
+        /* 算法切换 (顶部) */
+        .algo-bar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 8px 0 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+        .algo-btn {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.3px;
+        }
+        .algo-btn.active {
+            background: rgba(0, 255, 200, 0.12);
+            color: var(--accent-teal);
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 30px rgba(0, 255, 200, 0.05);
+        }
+        body.light .algo-btn.active {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--accent-indigo);
+            border-color: var(--accent-indigo);
+        }
+        .algo-btn.recommend {
+            border-color: rgba(0, 255, 0, 0.2);
+            color: var(--accent-green);
+        }
+        .algo-btn.recommend.active {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.05);
+        }
+        body.light .algo-btn.recommend.active {
+            background: rgba(57, 255, 20, 0.08);
+            color: #2E7D32;
+            border-color: #2E7D32;
+        }
+        .algo-btn:active { transform: scale(0.92); }
+
+        /* 开奖显示 */
+        .draw-section {
+            text-align: center;
+            padding: 20px 0 16px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            margin-bottom: 16px;
+        }
+        .draw-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .draw-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .draw-live {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+        .draw-live .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: liveBlink 1.5s infinite;
+        }
+        @keyframes liveBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        .draw-orbs {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            margin: 12px 0 16px;
+        }
+        .draw-orb {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 900;
+            background: radial-gradient(circle at 35% 35%, #1A2A3A, #0A121E);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 40px rgba(0, 255, 200, 0.03), inset 0 0 60px rgba(0, 255, 200, 0.02);
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+        }
+        body.light .draw-orb {
+            background: radial-gradient(circle at 35% 35%, #FFFFFF, #E8ECF0);
+            border-color: rgba(0, 0, 0, 0.06);
+            color: #0F0F11;
+        }
+        .draw-orb:nth-child(2) { animation-delay: -0.3s; }
+        .draw-orb:nth-child(3) { animation-delay: -0.6s; }
+        .draw-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .draw-meta span { color: var(--text); font-weight: 900; }
+
+        /* 三卫星 */
+        .satellites {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .satellite {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 14px 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+        }
+        .satellite .val {
+            font-size: 20px;
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+        }
+        .satellite .lbl {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        .sat-rose .val { color: var(--accent-rose); }
+        .sat-indigo .val { color: var(--accent-indigo); }
+        .sat-orange .val { color: var(--accent-orange); }
+
+        /* 按钮行 */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 16px 0 12px;
+        }
+        .action-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+        .action-btn.active {
+            background: rgba(0, 255, 200, 0.08);
+            color: var(--accent-teal);
+            border-color: var(--accent-teal);
+        }
+        body.light .action-btn.active {
+            background: rgba(0, 212, 255, 0.08);
+            color: var(--accent-indigo);
+            border-color: var(--accent-indigo);
+        }
+        .action-btn:active { transform: scale(0.92); }
+
+        /* 面板 (未来5期 & 种子) */
+        .panel {
+            background: var(--surface-heavy);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 10px 0 16px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(30px);
+            display: none;
+        }
+        .panel.open { display: block; }
+        .panel-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .future-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .future-item {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 10px 4px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .future-item .p {
+            font-size: 9px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+        .future-item .k {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--accent-rose);
+            font-family: 'Courier New', monospace;
+            margin-top: 2px;
+        }
+
+        /* 种子面板 */
+        .seed-flex {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .seed-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+        .seed-btn.primary {
+            background: rgba(0, 255, 200, 0.08);
+            color: var(--accent-teal);
+            border-color: var(--accent-teal);
+        }
+        body.light .seed-btn.primary {
+            background: rgba(0, 212, 255, 0.08);
+            color: var(--accent-indigo);
+            border-color: var(--accent-indigo);
+        }
+        .seed-btn:active { transform: scale(0.92); }
+        .seed-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .seed-progress {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        .seed-progress-fill {
+            height: 100%;
+            background: var(--accent-teal);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .seed-info {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+        .seed-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .seed-type-box {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .seed-type-box .lbl { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; }
+        .seed-type-box .val { font-size: 18px; font-weight: 900; margin-top: 2px; font-family: 'Courier New', monospace; }
+        .seed-kill {
+            display: inline-block;
+            background: rgba(255, 45, 85, 0.12);
+            color: var(--accent-rose);
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-weight: 900;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            margin-top: 6px;
+            border: 1px solid rgba(255, 45, 85, 0.1);
+        }
+
+        /* 种子回测折叠区域 */
+        .seed-toggle-detail {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            margin: 8px 0 4px;
+            text-align: center;
+        }
+        .seed-toggle-detail:hover {
+            border-color: var(--accent-teal);
+            color: var(--accent-teal);
+        }
+        .seed-toggle-detail.active {
+            border-color: var(--accent-teal);
+            color: var(--accent-teal);
+            background: rgba(0, 255, 200, 0.05);
+        }
+        .seed-detail-wrap {
+            display: none;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        .seed-detail-wrap.open { display: block; }
+
+        .seed-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        .seed-table th {
+            padding: 6px 4px;
+            text-align: center;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+        }
+        .seed-table td {
+            padding: 6px 4px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+        .tag {
+            display: inline-block;
+            background: var(--surface);
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 700;
+            margin: 0 1px;
+        }
+        .win { color: var(--accent-green); }
+        .lose { color: var(--accent-rose); }
+
+        /* 底部 Dock */
+        .dock {
+            background: var(--surface-heavy);
+            border-radius: var(--radius);
+            padding: 20px 18px;
+            margin-top: 12px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(30px);
+        }
+        .dock-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .dock-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .dock-countdown {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--accent-teal);
+            font-family: 'Courier New', monospace;
+            letter-spacing: -2px;
+        }
+        .dock-next-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+        .dock-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 14px 0;
+        }
+        .scheme-strip {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .scheme-text {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 14px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            outline: none;
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+        body.light .scheme-text { background: rgba(0, 0, 0, 0.04); }
+        .scheme-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(0, 255, 200, 0.06);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .scheme-btn:active { transform: scale(0.85); }
+        .dock-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 6px;
+        }
+        .dock-pill {
+            padding: 6px 14px;
+            border-radius: 16px;
+            background: var(--surface);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-indigo);
+            border: 1px solid var(--border);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* 历史触发 */
+        .history-trigger {
+            text-align: center;
+            padding: 20px 0 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        .history-trigger:active { opacity: 0.5; transform: scale(0.97); }
+
+        /* 历史模态框 */
+        .history-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .history-overlay.open { opacity: 1; pointer-events: auto; }
+        .history-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 10%;
+            background: var(--surface-heavy);
+            backdrop-filter: blur(60px);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
+            transform: translateY(110%);
+            transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+            overflow-y: auto;
+            z-index: 1000;
+            border-top: 1px solid var(--border);
+        }
+        .history-panel.open { transform: translateY(0); }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .history-header h2 {
+            font-size: 18px;
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        .history-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        .history-close:active { transform: scale(0.88); }
+        .history-table-wrap {
+            overflow-x: auto;
+            border-radius: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+        }
+        .history-table th {
+            padding: 10px 6px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+            text-align: center;
+        }
+        .history-table td {
+            padding: 10px 6px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+        .badge-green { color: var(--accent-green); }
+        .badge-red { color: var(--accent-rose); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            color: #0F0;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 99999;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 255, 0, 0.1);
+            font-family: 'Courier New', monospace;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ============================================================
+           响应式
+           ============================================================ */
+        @media (max-width: 480px) {
+            .draw-orb { width: 60px; height: 60px; font-size: 24px; }
+            .draw-orbs { gap: 12px; }
+            .satellites { max-width: 100%; }
+            .future-grid { gap: 4px; }
+            .future-item .k { font-size: 13px; }
+            .algo-btn { font-size: 9px; padding: 4px 10px; }
+            .dock-countdown { font-size: 28px; }
+            .splash-logo { font-size: 48px; }
+            .top-clock { font-size: 11px; padding: 4px 12px; }
+        }
     </style>
 </head>
 <body>
-    <div class="ambient-bg">
-        <div class="ambient-blob"></div>
-        <div class="ambient-blob"></div>
-        <div class="ambient-blob"></div>
-    </div>
-    <div class="noise-overlay"></div>
 
-    <div class="toast" id="toast"><div class="toast-icon">✓</div><span id="toastText">已复制</span></div>
-
+    <!-- ============================================================
+       启动动画
+    ============================================================ -->
     <div class="splash-screen" id="splashScreen">
-        <div class="splash-logo">多</div>
-        <div class="splash-name">多情 · 加拿大28</div>
-        <div class="splash-sub">高级预测系统</div>
-        <div class="splash-info">
-            <p><strong>算法</strong> 换球 / log / sqrt / sinh / U1</p>
-            <p>客服 <span class="contact">@dqcco</span></p>
-        </div>
-        <div class="splash-progress-wrap">
-            <div class="splash-progress-bg"><div class="splash-progress-fill" id="progressFill"></div></div>
-            <div class="splash-progress-text" id="progressText">正在加载数据...</div>
-        </div>
-    </div>
-
-    <div class="status-island fade-in-up delay-1">
-        <div class="island-pill">
-            <div class="island-dot"></div>
-            <span>多情集团 · 预测版</span>
-        </div>
-        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <div class="refresh-area">
-                <button class="refresh-btn" id="refreshBtn">⟳ 刷新</button>
-                <span class="refresh-time" id="lastRefreshTime">--:--:--</span>
+        <div class="matrix-rain" id="matrixRain"></div>
+        <div class="splash-content">
+            <div class="splash-logo-wrap">
+                <div class="splash-logo">⧩ 多情</div>
+                <div class="splash-logo-sub">· 黑 客 预 测 系 统 ·</div>
             </div>
-            <button class="history-trigger-top" id="historyTriggerTop">📜 历史</button>
-            <button class="theme-toggle" id="themeToggle">☀️</button>
-        </div>
-    </div>
-
-    <div class="brand fade-in-up delay-2">
-        <div class="brand-name">多情 · 加拿大28</div>
-        <div class="brand-sub">换球算法 · 实时预测</div>
-        <div class="brand-badge">内部算法 · 请勿外传</div>
-    </div>
-
-    <div class="algo-switch fade-in-up delay-2" id="algoSwitch">
-        <button class="algo-btn active" data-algo="huanqiu">换球</button>
-        <button class="algo-btn" data-algo="logc1">log10(c1)*3</button>
-        <button class="algo-btn" data-algo="sqrtc3">√(c3)*20</button>
-        <button class="algo-btn" data-algo="sinhtail">sinh(tail2)/7</button>
-        <button class="algo-btn" data-algo="u1">U1混沌</button>
-    </div>
-
-    <div class="stage fade-in-up delay-3">
-        <div class="stage-header">
-            <div class="stage-label">最新开奖</div>
-            <div class="stage-live"><div class="live-dot"></div>LIVE</div>
-        </div>
-        <div class="draw-orb-group">
-            <div class="draw-orb" id="ball1">-</div>
-            <div class="draw-orb" id="ball2">-</div>
-            <div class="draw-orb" id="ball3">-</div>
-        </div>
-        <div class="draw-meta">
-            第<span id="latestPeriod">----</span>期 · 和值<span id="latestSum">--</span> · <span id="latestType">--</span>
-        </div>
-        <div class="satellites fade-in-up delay-4">
-            <div class="satellite sat-rose"><div class="sat-value" id="killText">--</div><div class="sat-label">杀组</div></div>
-            <div class="satellite sat-indigo"><div class="sat-value" id="dualText">--</div><div class="sat-label">双组</div></div>
-            <div class="satellite sat-orange"><div class="sat-value" id="betText">--</div><div class="sat-label">推荐</div></div>
-        </div>
-    </div>
-
-    <div class="dock fade-in-up delay-4">
-        <div class="dock-section">
-            <div class="dock-section-header">
-                <div class="dock-section-title">下期倒计时</div>
-                <div class="dock-next-time" id="nextTimeDisplay">--:--:--</div>
+            <div class="splash-progress-wrap">
+                <div class="splash-progress-label">
+                    <span id="splashProgressLabel">初始化系统</span>
+                    <span id="splashProgressPercent">0%</span>
+                </div>
+                <div class="splash-progress-bg">
+                    <div class="splash-progress-fill" id="splashProgressFill"></div>
+                </div>
             </div>
-            <div class="dock-countdown-wrap">
-                <div class="dock-countdown" id="countdownText">--:--</div>
-                <div class="dock-countdown-label">下一期</div>
+            <div class="splash-lines" id="splashLines">
+                <div class="line">> 加载预测引擎 <span class="cursor"></span></div>
+            </div>
+            <div class="splash-hint">▌ 系统就绪中 · 请稍候</div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">✓ 已复制</div>
+
+    <!-- ============================================================
+       主应用
+    ============================================================ -->
+    <div class="main-app" id="mainApp">
+
+        <!-- 顶部栏 -->
+        <div class="top-bar">
+            <div class="brand-mini">⧩ 多情 <span>· 预测</span></div>
+            <div class="top-right">
+                <div class="top-clock" id="topClock">--:--:--</div>
+                <span class="refresh-status" id="refreshStatus">⏳ 自动刷新中</span>
+                <button class="theme-toggle" id="themeToggle">☀️</button>
             </div>
         </div>
-        <div class="dock-divider"></div>
-        <div class="dock-section">
-            <div class="dock-section-header">
-                <div class="dock-section-title">预测方案</div>
+
+        <!-- 算法切换 -->
+        <div class="algo-bar" id="algoBar">
+            <button class="algo-btn recommend active" data-algo="y">Y算法</button>
+            <button class="algo-btn" data-algo="huanqiu">换球</button>
+            <button class="algo-btn" data-algo="logc1">log10(c1)*3</button>
+            <button class="algo-btn" data-algo="sqrtc3">√(c3)*20</button>
+            <button class="algo-btn" data-algo="sinhtail">sinh(tail2)/7</button>
+            <button class="algo-btn" data-algo="u1">U1混沌</button>
+            <button class="algo-btn" data-algo="sinln">sin+ln</button>
+            <button class="algo-btn" data-algo="wangpai">王牌</button>
+        </div>
+
+        <!-- 开奖 -->
+        <div class="draw-section">
+            <div class="draw-header">
+                <span class="draw-label">最新开奖</span>
+                <span class="draw-live"><span class="dot"></span>LIVE</span>
+            </div>
+            <div class="draw-orbs">
+                <div class="draw-orb" id="ball1">-</div>
+                <div class="draw-orb" id="ball2">-</div>
+                <div class="draw-orb" id="ball3">-</div>
+            </div>
+            <div class="draw-meta">
+                第 <span id="latestPeriod">----</span> 期 &nbsp;·&nbsp; 和值 <span id="latestSum">--</span> &nbsp;·&nbsp; <span id="latestType">--</span>
+            </div>
+            <div class="satellites">
+                <div class="satellite sat-rose"><div class="val" id="killText">--</div><div class="lbl">杀组</div></div>
+                <div class="satellite sat-indigo"><div class="val" id="dualText">--</div><div class="lbl">双组推荐</div></div>
+                <div class="satellite sat-orange"><div class="val" id="betText">--</div><div class="lbl">推荐</div></div>
+            </div>
+        </div>
+
+        <!-- 按钮 -->
+        <div class="action-bar">
+            <button class="action-btn" id="toggleFutureBtn">📈 未来5期</button>
+            <button class="action-btn" id="toggleSeedBtn">🌱 种子预测</button>
+        </div>
+
+        <!-- 未来5期 -->
+        <div class="panel" id="futurePanel">
+            <div class="panel-title">🔮 未来 5 期预测</div>
+            <div class="future-grid" id="futureGrid">
+                <div class="future-item"><div class="p">+1</div><div class="k" id="f1">--</div></div>
+                <div class="future-item"><div class="p">+2</div><div class="k" id="f2">--</div></div>
+                <div class="future-item"><div class="p">+3</div><div class="k" id="f3">--</div></div>
+                <div class="future-item"><div class="p">+4</div><div class="k" id="f4">--</div></div>
+                <div class="future-item"><div class="p">+5</div><div class="k" id="f5">--</div></div>
+            </div>
+        </div>
+
+        <!-- 种子预测 -->
+        <div class="panel" id="seedPanel">
+            <div class="panel-title">🌱 种子预测</div>
+            <div class="seed-flex" style="margin-bottom:8px;">
+                <button class="seed-btn primary" id="seedFetchBtn">📥 拉取数据</button>
+                <button class="seed-btn" id="seedScanBtn" disabled>🔍 扫描种子</button>
+                <span class="seed-info" id="seedStatus">等待操作</span>
+            </div>
+            <div class="seed-progress"><div class="seed-progress-fill" id="seedProgressFill"></div></div>
+            <div class="seed-flex" style="margin:4px 0;">
+                <span class="seed-info" id="seedCountBadge">种子数: 0</span>
+                <span class="seed-info" id="bestSeedInfo">最佳种子: --</span>
+                <span class="seed-info" id="seedHitInfo">命中: --</span>
+            </div>
+            <div class="seed-grid-3" id="seedGroupsDisplay"></div>
+            <div style="text-align:center;"><span class="seed-kill" id="seedKillDisplay">--</span></div>
+
+            <!-- 回测详情折叠按钮 -->
+            <div class="seed-toggle-detail" id="seedToggleDetail">📊 显示回测详情</div>
+            <div class="seed-detail-wrap" id="seedDetailWrap">
+                <div class="seed-table-wrap">
+                    <table class="seed-table" id="seedBacktestTable">
+                        <thead><tr><th>期号</th><th>上期开奖</th><th>预测三组</th><th>实际开奖</th><th>结果</th></tr></thead>
+                        <tbody id="seedBacktestBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dock -->
+        <div class="dock">
+            <div class="dock-row">
+                <span class="dock-label">下一期倒计时</span>
+                <span class="dock-next-time" id="nextTimeDisplay">--:--:--</span>
+            </div>
+            <div class="dock-countdown" id="countdownText">--:--</div>
+            <div class="dock-divider"></div>
+            <div class="dock-row" style="margin-bottom:6px;">
+                <span class="dock-label">预测方案</span>
             </div>
             <div class="scheme-strip">
-                <input type="text" class="scheme-text" id="recordText" readonly value="等待数据加载...">
+                <input class="scheme-text" id="recordText" readonly value="等待数据加载...">
                 <button class="scheme-btn" id="copyBtn">📋</button>
             </div>
             <div class="dock-pills" id="specialCodesContainer"></div>
         </div>
+
+        <!-- 历史 -->
+        <div class="history-trigger" id="historyTrigger">⏳ 查看验证记录</div>
     </div>
 
-    <div class="history-trigger-bottom fade-in-up delay-4" id="historyTriggerBottom">
-        查看验证记录
-        <svg viewBox="0 0 24 24" width="16" height="16"><polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-    </div>
-
-    <div class="history-modal-overlay" id="historyOverlay"></div>
+    <!-- 历史模态框 -->
+    <div class="history-overlay" id="historyOverlay"></div>
     <div class="history-panel" id="historyPanel">
-        <div class="history-panel-header">
-            <div class="history-panel-title">验证记录</div>
-            <button class="history-panel-close" id="historyClose">✕</button>
+        <div class="history-header">
+            <h2>⏳ 验证记录</h2>
+            <button class="history-close" id="historyClose">✕</button>
         </div>
         <div class="history-table-wrap">
             <table class="history-table">
@@ -256,23 +1094,18 @@
     </div>
 
     <script>
-        // ========== 配置 ==========
-        const API_URL = "https://pc28.help/api/kj.json?nbr=30";
-        const STORAGE_KEY = 'duoqing_advanced_v4';
-        const DRAW_PERIOD = 210;
+        // ============================================================
+        // 核心映射 & 算法 (完整)
+        // ============================================================
+        const KILL_MAP = {};
+        for (let s = 0; s < 28; s++) {
+            const size = s < 14 ? "小" : "大";
+            const parity = s % 2 === 0 ? "双" : "单";
+            KILL_MAP[s] = size + parity;
+        }
 
-        // ========== N值表 ==========
-        const KILL_MAP = {
-            0:"小双",1:"小单",2:"小双",3:"小单",4:"小双",5:"小单",
-            6:"小双",7:"小单",8:"小双",9:"小单",10:"小双",11:"小单",
-            12:"小双",13:"小单",14:"大双",15:"大单",16:"大双",17:"大单",
-            18:"大双",19:"大单",20:"大双",21:"大单",22:"大双",23:"大单",
-            24:"大双",25:"大单",26:"大双",27:"大单"
-        };
-        const DUAL_MAP = {"小双":"大单","大单":"小双","小单":"大双","大双":"小单"};
-
-        function toKill(val) {
-            const absVal = Math.abs(val);
+        function toKill(value) {
+            const absVal = Math.abs(value);
             const s = absVal.toFixed(10);
             const frac = s.split('.')[1];
             const digits = (frac + '000').slice(0, 3);
@@ -280,137 +1113,171 @@
             return KILL_MAP[n] || "小双";
         }
 
-        // ========== 五个算法(特征索引完全对齐Python) ==========
-        // 期数定义：history[0]=最新期, history[1]=上期, history[2]=上上期, history[3]=上上上期
-        function algo_huanqiu(rec) {
-            const c1 = rec.c1 || 0, c2 = rec.c2 || 0;
+        // 8种算法
+        function algoY(history) {
+            const latest = history[0];
+            const a = latest.nums[0],
+                c = latest.nums[2];
+            const x = a + c;
+            const val = Math.cos(x) * Math.sqrt(Math.PI);
+            return toKill(val);
+        }
+
+        function algoHuanqiu(history) {
+            const c1 = history[1] ? history[1].nums[2] : 0;
+            const c2 = history[2] ? history[2].nums[2] : 0;
             const val = (Math.sin(c1) * Math.sqrt(c2)) / 3.0;
             return toKill(val);
         }
-        function algo_logc1(rec) {
-            const c1 = rec.c1 || 0;
+
+        function algoLogc1(history) {
+            const c1 = history[1] ? history[1].nums[2] : 1;
             if (c1 <= 0) return "小双";
             const val = Math.log10(c1) * 3.0;
             return toKill(val);
         }
-        function algo_sqrtc3(rec) {
-            const c3 = rec.c3 || 0;
+
+        function algoSqrtc3(history) {
+            const c3 = history[3] ? history[3].nums[2] : 0;
             const val = Math.sqrt(c3) * 20.0;
             return toKill(val);
         }
-        function algo_sinhtail(rec) {
-            const tail2 = rec.tail2 || 0;
+
+        function algoSinhtail(history) {
+            const tail2 = history[2] ? parseInt(history[2].expect.slice(-1)) || 0 : 0;
             const val = Math.sinh(tail2) / 7.0;
             return toKill(val);
         }
-        function algo_u1(rec) {
-            const S1 = rec.S1 || 0, A1 = rec.A1 || 0, S2 = rec.S2 || 0, C3 = rec.C3 || 0;
+
+        function algoU1(history) {
+            const S1 = history[0] ? history[0].sum : 0;
+            const A1 = history[0] ? history[0].nums[0] : 0;
+            const S2 = history[1] ? history[1].sum : 0;
+            const C3 = history[3] ? history[3].nums[2] : 0;
             const val = Math.sin(S1 * Math.PI) * Math.exp(Math.abs(A1 - C3) / (S2 + 1.1)) * 1.618;
             return toKill(val);
         }
 
-        const ALGO_MAP = {
-            huanqiu: { name: '换球', func: algo_huanqiu },
-            logc1: { name: 'log10(c1)*3', func: algo_logc1 },
-            sqrtc3: { name: '√(c3)*20', func: algo_sqrtc3 },
-            sinhtail: { name: 'sinh(tail2)/7', func: algo_sinhtail },
-            u1: { name: 'U1混沌', func: algo_u1 }
-        };
+        function algoSinln(history) {
+            const total = history[0] ? history[0].sum : 0;
+            const val = (Math.sin(total * Math.PI / 180) + Math.log(total + 1)) / 8.70;
+            return toKill(val);
+        }
 
-        // ========== 全局状态 ==========
-        let currentAlgo = 'huanqiu';
-        let history = [];
+        function algoWangpai(history) {
+            const c1 = history[1] ? history[1].nums[2] : 1;
+            const b1 = history[1] ? history[1].nums[1] : 1;
+            if (c1 <= 0) return "小双";
+            const val = (Math.log(c1) * Math.exp(b1)) / Math.PI;
+            return toKill(val);
+        }
+
+        const ALGO_MAP = {
+            y: { name: 'Y算法', func: algoY },
+            huanqiu: { name: '换球', func: algoHuanqiu },
+            logc1: { name: 'log10(c1)*3', func: algoLogc1 },
+            sqrtc3: { name: '√(c3)*20', func: algoSqrtc3 },
+            sinhtail: { name: 'sinh(tail2)/7', func: algoSinhtail },
+            u1: { name: 'U1混沌', func: algoU1 },
+            sinln: { name: 'sin+ln', func: algoSinln },
+            wangpai: { name: '王牌', func: algoWangpai }
+        };
+        const ALL_ATTRS = ['小双', '小单', '大双', '大单'];
+
+        function getTwoRecommends(kill) {
+            return ALL_ATTRS.filter(a => a !== kill).slice(0, 2);
+        }
+
+        // ============================================================
+        // 状态
+        // ============================================================
+        let currentAlgoKey = 'y';
+        let historyData = [];
         let latestDrawTime = null;
         let isRequesting = false;
         let countdownTimer = null;
-        let autoRefreshTimer = null;
+        let refreshTimer = null;
 
-        // ========== 存储 ==========
-        function loadRecords() {
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
-        }
-        function saveRecords(records) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-        }
-        function addRecord(expect, algoName, kill, dual) {
-            let records = loadRecords();
-            if (records.some(r => r.expect === expect && r.algo === algoName)) return;
-            records.push({ expect, algo: algoName, kill, dual, status: 'pending' });
-            if (records.length > 50) records.shift();
-            saveRecords(records);
-        }
-        function verifyRecord(expect, actualType) {
-            let records = loadRecords();
-            let updated = false;
-            records = records.map(r => {
-                if (r.expect === expect && r.status === 'pending') {
-                    const killOk = (r.kill !== actualType);
-                    const dualOk = (r.dual.includes(actualType));
-                    updated = true;
-                    return { ...r, status: 'verified', actualType, killOk, dualOk };
-                }
-                return r;
-            });
-            if (updated) saveRecords(records);
-        }
+        // ============================================================
+        // 数据获取
+        // ============================================================
+        const API_URL = "https://super.pc28998.com/history/JND28";
 
-        // ========== 数据获取 ==========
-        async function fetchData() {
+        async function fetchMainData() {
             try {
-                const resp = await fetch(API_URL);
+                const resp = await fetch(API_URL, { signal: AbortSignal.timeout(15000) });
                 if (!resp.ok) throw new Error('网络错误');
                 const json = await resp.json();
-                if (!json.data || json.data.length === 0) throw new Error('无数据');
-                const items = json.data.map(item => {
-                    const nums = item.number.split('+').map(Number);
-                    const sum = nums.reduce((a,b) => a+b, 0);
-                    const combo = (sum >= 14 ? '大' : '小') + (sum % 2 === 0 ? '双' : '单');
-                    let opentime = Date.now();
-                    if (item.date && item.time) {
-                        try {
-                            const dt = new Date(item.date + ' ' + item.time);
-                            if (!isNaN(dt)) opentime = dt.getTime();
-                        } catch(e) {}
-                    }
-                    return {
-                        expect: String(item.nbr),
-                        nums: nums,
-                        sum: sum,
-                        type: combo,
-                        opentime: opentime
-                    };
-                });
-                items.sort((a,b) => parseInt(b.expect) - parseInt(a.expect));
-                return items;
-            } catch(e) {
+                if (json.code === 1 && json.data && json.data.length > 0) {
+                    const items = json.data.slice(0, 200).map(item => {
+                        const nums = item.opencode.split(',').map(Number);
+                        const sum = nums.reduce((a, b) => a + b, 0);
+                        return {
+                            expect: String(item.expect),
+                            nums: nums,
+                            sum: sum,
+                            type: (sum >= 14 ? '大' : '小') + (sum % 2 === 0 ? '双' : '单'),
+                            opentime: Date.now()
+                        };
+                    });
+                    items.sort((a, b) => parseInt(b.expect) - parseInt(a.expect));
+                    return items;
+                }
+                return null;
+            } catch (e) {
                 console.error(e);
                 return null;
             }
         }
 
-        // ========== 计算预测(修正索引) ==========
-        function computePrediction(history, algoKey) {
-            if (history.length < 3) return { kill: '--', dual: ['--','--'] };
-            // 最新期: history[0], 上期: history[1], 上上期: history[2], 上上上期: history[3]
-            const rec = {
-                c1: history[1]?.nums[2] || 0,       // 上期C
-                c2: history[2]?.nums[2] || 0,       // 上上期C
-                c3: history[2]?.nums[2] || 0,       // 上上期C(sqrtc3用)
-                tail2: parseInt(history[2]?.expect?.slice(-1)) || 0, // 上上期尾数
-                S1: history[0]?.sum || 0,           // 最新期和值
-                A1: history[0]?.nums[0] || 0,       // 最新期A
-                S2: history[1]?.sum || 0,           // 上期和值
-                C3: history[3]?.nums[2] || 0,       // 上上上期C(U1需要)
-            };
-            const algo = ALGO_MAP[algoKey];
-            if (!algo) return { kill: '--', dual: ['--','--'] };
-            const kill = algo.func(rec);
-            const dual = [kill, DUAL_MAP[kill] || '--'];
-            return { kill, dual };
+        // ============================================================
+        // 主刷新 (带状态提示)
+        // ============================================================
+        async function refreshMain() {
+            if (isRequesting) return;
+            isRequesting = true;
+            const statusEl = document.getElementById('refreshStatus');
+            statusEl.textContent = '🔄 刷新中...';
+            statusEl.style.color = 'var(--accent-orange)';
+
+            const data = await fetchMainData();
+            if (data && data.length > 0) {
+                const existing = new Set(historyData.map(h => h.expect));
+                for (const d of data) {
+                    if (!existing.has(d.expect)) {
+                        historyData.push(d);
+                        existing.add(d.expect);
+                    }
+                }
+                historyData.sort((a, b) => parseInt(b.expect) - parseInt(a.expect));
+                const latest = historyData[0];
+                if (latest) {
+                    renderMainUI(latest);
+                    if (window._seedTool && typeof window._seedTool.setHistory === 'function') {
+                        window._seedTool.setHistory(historyData);
+                    }
+                }
+                statusEl.textContent = '✅ 已更新';
+                statusEl.style.color = 'var(--accent-green)';
+                setTimeout(() => {
+                    statusEl.textContent = '⏳ 自动刷新中';
+                    statusEl.style.color = 'var(--text-secondary)';
+                }, 2000);
+            } else {
+                statusEl.textContent = '⚠️ 刷新失败';
+                statusEl.style.color = 'var(--accent-rose)';
+                setTimeout(() => {
+                    statusEl.textContent = '⏳ 自动刷新中';
+                    statusEl.style.color = 'var(--text-secondary)';
+                }, 3000);
+            }
+            isRequesting = false;
         }
 
-        // ========== UI 渲染 ==========
-        function renderUI(latest) {
+        // ============================================================
+        // 主UI渲染
+        // ============================================================
+        function renderMainUI(latest) {
             if (!latest) return;
             document.getElementById('ball1').textContent = latest.nums[0];
             document.getElementById('ball2').textContent = latest.nums[1];
@@ -420,28 +1287,58 @@
             document.getElementById('latestType').textContent = latest.type;
             latestDrawTime = new Date(latest.opentime);
 
-            const pred = computePrediction(history, currentAlgo);
-            const kill = pred.kill;
-            const dual = pred.dual;
-            document.getElementById('killText').textContent = kill;
-            document.getElementById('dualText').textContent = dual.join('/');
-            document.getElementById('betText').textContent = dual.join('/');
+            const pred = computePrediction(currentAlgoKey);
+            document.getElementById('killText').textContent = pred.kill;
+            document.getElementById('dualText').textContent = pred.dual.join('/');
+            document.getElementById('betText').textContent = pred.dual[0] || pred.kill;
 
-            const algoName = ALGO_MAP[currentAlgo].name;
+            for (let i = 1; i <= 5; i++) {
+                const el = document.getElementById('f' + i);
+                if (el) el.textContent = pred.kill;
+            }
+
+            const algoName = ALGO_MAP[currentAlgoKey].name;
             const nextExpect = String(parseInt(latest.expect) + 1);
-            addRecord(nextExpect, algoName, kill, dual);
+            addRecord(nextExpect, currentAlgoKey, pred.kill, pred.dual);
 
-            document.getElementById('recordText').value = `杀${kill}🉐${dual.join('')} 13/14`;
-            const specials = dual.map(t => {
-                const map = { '小双':[2,4,6], '小单':[1,3,5], '大双':[14,16,18], '大单':[15,17,19] };
-                return (map[t] || []).slice(0,2).map(n=>String(n).padStart(2,'0')).join(',');
+            document.getElementById('recordText').value =
+                `杀${pred.kill} 双${pred.dual.join('/')} (${algoName})`;
+            const specials = pred.dual.map(t => {
+                const map = { '小双': [2, 4, 6], '小单': [1, 3, 5], '大双': [14, 16, 18], '大单': [15, 17, 19] };
+                return (map[t] || []).slice(0, 2).map(n => String(n).padStart(2, '0')).join(',');
             }).join(' ');
-            document.getElementById('specialCodesContainer').innerHTML = specials ? `<div class="dock-pill">${specials}</div>` : '';
+            document.getElementById('specialCodesContainer').innerHTML = specials ? `<span class="dock-pill">${specials}</span>` :
+                '';
 
             renderHistory();
             startCountdown();
             updateNextTime();
-            updateRefreshTime();
+        }
+
+        function computePrediction(algoKey) {
+            if (historyData.length < 3) return { kill: '--', dual: ['--', '--'] };
+            const algo = ALGO_MAP[algoKey];
+            if (!algo) return { kill: '--', dual: ['--', '--'] };
+            const kill = algo.func(historyData);
+            const dual = getTwoRecommends(kill);
+            return { kill, dual };
+        }
+
+        // ============================================================
+        // 存储 & 历史
+        // ============================================================
+        const STORAGE_KEY = 'duoqing_hacker_v2';
+
+        function loadRecords() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch (e) { return []; } }
+
+        function saveRecords(records) { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
+
+        function addRecord(expect, algoKey, kill, dual) {
+            let records = loadRecords();
+            if (records.some(r => r.expect === expect && r.algo === algoKey)) return;
+            records.push({ expect, algo: algoKey, kill, dual, status: 'pending' });
+            if (records.length > 100) records.shift();
+            saveRecords(records);
         }
 
         function renderHistory() {
@@ -451,25 +1348,20 @@
                 tbody.innerHTML = '<tr><td colspan="6">暂无记录</td></tr>';
                 return;
             }
-            tbody.innerHTML = records.slice(0,30).map(r => {
+            tbody.innerHTML = records.slice(0, 50).map(r => {
                 const status = r.status === 'pending' ? '⏳' : (r.killOk ? '🀄️' : '🍉');
                 const actual = r.status === 'verified' ? r.actualType : '--';
-                return `<tr><td>${r.expect}</td><td>${actual}</td><td>${r.algo}</td><td>${r.kill}</td><td>${r.dual.join('/')}</td><td class="${r.status==='verified'?(r.killOk?'badge-green':'badge-red'):''}">${status}</td></tr>`;
+                return `<tr><td>${r.expect}</td><td>${actual}</td><td>${ALGO_MAP[r.algo]?.name || r.algo}</td><td>${r.kill}</td><td>${r.dual.join('/')}</td><td class="${r.status==='verified'?(r.killOk?'badge-green':'badge-red'):''}">${status}</td></tr>`;
             }).join('');
         }
 
         function updateNextTime() {
             if (latestDrawTime) {
-                const nextTime = new Date(latestDrawTime.getTime() + DRAW_PERIOD * 1000);
+                const nextTime = new Date(latestDrawTime.getTime() + 210 * 1000);
                 document.getElementById('nextTimeDisplay').textContent = nextTime.toLocaleTimeString();
             } else {
                 document.getElementById('nextTimeDisplay').textContent = '--:--:--';
             }
-        }
-
-        function updateRefreshTime() {
-            const now = new Date();
-            document.getElementById('lastRefreshTime').textContent = now.toLocaleTimeString();
         }
 
         function startCountdown() {
@@ -480,113 +1372,349 @@
             }
             const tick = () => {
                 const now = Date.now();
-                const next = latestDrawTime.getTime() + DRAW_PERIOD * 1000;
+                const next = latestDrawTime.getTime() + 210 * 1000;
                 const diff = Math.max(0, Math.floor((next - now) / 1000));
                 document.getElementById('countdownText').textContent =
                     `${String(Math.floor(diff/60)).padStart(2,'0')}:${String(diff%60).padStart(2,'0')}`;
                 if (diff <= 0) {
                     clearInterval(countdownTimer);
-                    fetchDataFastest();
+                    refreshMain();
                 }
             };
             tick();
             countdownTimer = setInterval(tick, 200);
         }
 
-        // ========== 核心更新 ==========
-        async function fetchDataFastest() {
-            if (isRequesting) return;
-            isRequesting = true;
-            const data = await fetchData();
-            if (data && data.length > 0) {
-                const existing = new Set(history.map(h => h.expect));
-                for (const d of data) {
-                    if (!existing.has(d.expect)) {
-                        history.push(d);
-                        existing.add(d.expect);
-                    }
-                }
-                history.sort((a,b) => parseInt(b.expect) - parseInt(a.expect));
-                const latest = history[0];
-                verifyRecord(latest.expect, latest.type);
-                renderUI(latest);
-            }
-            isRequesting = false;
+        // ============================================================
+        // 实时时钟
+        // ============================================================
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('topClock').textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
         }
+        setInterval(updateClock, 1000);
+        updateClock();
 
-        function refreshData() {
-            fetchDataFastest();
-        }
-
-        // ========== 切换算法 ==========
+        // ============================================================
+        // 切换算法
+        // ============================================================
         function switchAlgo(algoKey) {
-            if (algoKey === currentAlgo) return;
-            currentAlgo = algoKey;
+            if (algoKey === currentAlgoKey) return;
+            currentAlgoKey = algoKey;
             document.querySelectorAll('.algo-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.algo === algoKey);
             });
-            if (history.length) {
-                const latest = history[0];
-                renderUI(latest);
+            if (historyData.length) {
+                const latest = historyData[0];
+                renderMainUI(latest);
             }
         }
 
-        // ========== 主题切换 ==========
-        function toggleTheme() {
-            document.body.classList.toggle('dark');
-            document.getElementById('themeToggle').textContent = document.body.classList.contains('dark') ? '🌙' : '☀️';
+        // ============================================================
+        // 种子预测模块
+        // ============================================================
+        const SEQUENCES = [
+            [0, 3, 9, 12, 15, 18, 21, 24, 27],
+            [1, 4, 7, 10, 13, 16, 19, 22, 25],
+            [2, 5, 8, 11, 14, 17, 20, 23, 26]
+        ];
+        const RULES = {
+            same: { '小双': ['小双', '大双', '大单'], '小单': ['小单', '大单', '大双'], '大双': ['大双', '小双', '小单'],
+                '大单': ['大单', '小双', '小单'] },
+            diff: { '小双': ['小双', '小单', '大单'], '小单': ['小单', '小双', '大双'], '大双': ['大双', '大单', '小单'],
+                '大单': ['大单', '大双', '小双'] }
+        };
+
+        function getTypeSeed(sum) { return (sum < 14 ? '小' : '大') + (sum % 2 === 0 ? '双' : '单'); }
+
+        function mulberry32(s) {
+            let a = s;
+            return function() {
+                a = (a | 0) + 0x6D2B79F5 | 0;
+                let t = Math.imul(a ^ a >>> 15, a | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            };
         }
 
-        // ========== 历史面板控制 ==========
-        function openHistory() {
-            document.getElementById('historyOverlay').classList.add('open');
-            document.getElementById('historyPanel').classList.add('open');
-        }
-        function closeHistory() {
-            document.getElementById('historyPanel').classList.remove('open');
-            setTimeout(() => document.getElementById('historyOverlay').classList.remove('open'), 100);
+        function splitSum(n) {
+            return String(n).replace('.', '').split('').reduce((a, b) => a + parseInt(b), 0);
         }
 
-        // ========== 启动 ==========
-        function initApp() {
-            const splash = document.getElementById('splashScreen');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            let progress = 0, splashDismissed = false;
-            const progressTimer = setInterval(() => {
-                if (splashDismissed) { clearInterval(progressTimer); return; }
-                progress += Math.random() * 8 + 2;
-                if (progress >= 100) {
-                    progress = 100; progressFill.style.width = '100%';
-                    progressText.textContent = '加载完成，点击进入'; clearInterval(progressTimer);
+        function isSameSeq(a, b) {
+            const ia = SEQUENCES.findIndex(s => s.includes(a));
+            const ib = SEQUENCES.findIndex(s => s.includes(b));
+            return ia !== -1 && ia === ib;
+        }
+
+        function getRawGroups(seed, item) {
+            const rng = mulberry32(seed + parseInt(item.expect));
+            const rand = Number(rng().toFixed(8));
+            const prod = rand * item.sum;
+            const finalSum = splitSum(prod.toFixed(3));
+            const type = getTypeSeed(finalSum);
+            const randStr = rand.toFixed(8).split('.')[1].slice(0, 3);
+            const randSum = splitSum(randStr);
+            const same = isSameSeq(randSum, item.sum);
+            return same ? RULES.same[type].slice() : RULES.diff[type].slice();
+        }
+
+        function getKillGroup(groups) {
+            const big = groups.filter(g => g.startsWith('大'));
+            if (big.length >= 2) return big[1];
+            else if (big.length === 1) return big[0];
+            else return groups[0];
+        }
+
+        let seedHistory = [];
+        let scanning = false;
+        let seedDetailVisible = false;
+
+        function setSeedHistory(hist) {
+            seedHistory = hist.slice();
+            const scanBtn = document.getElementById('seedScanBtn');
+            if (seedHistory.length >= 31) {
+                scanBtn.disabled = false;
+                document.getElementById('seedStatus').textContent = `✅ 数据就绪 ${seedHistory.length}期`;
+            }
+        }
+        window._seedTool = { setHistory: setSeedHistory };
+
+        async function seedFetch() {
+            const status = document.getElementById('seedStatus');
+            status.textContent = '⏳ 加载数据...';
+            const data = await fetchMainData();
+            if (data && data.length > 0) {
+                seedHistory = data;
+                status.textContent = `✅ 加载成功，共 ${seedHistory.length} 期`;
+                document.getElementById('seedScanBtn').disabled = (seedHistory.length < 31);
+                if (seedHistory.length >= 31) {
+                    document.getElementById('seedScanBtn').disabled = false;
                 } else {
-                    progressFill.style.width = progress + '%';
+                    status.textContent = '⚠️ 数据不足31期，无法扫描';
                 }
-            }, 120);
-            fetchDataFastest().then(() => {
-                if (progress >= 90 && !splashDismissed) {
-                    progress = 100; progressFill.style.width = '100%';
-                    progressText.textContent = '加载完成，点击进入'; clearInterval(progressTimer);
+            } else {
+                status.textContent = '❌ 数据异常';
+            }
+        }
+
+        function calcTotalHit(seed, history) {
+            const maxN = Math.min(100, history.length - 1);
+            let hit = 0;
+            for (let i = 0; i < maxN; i++) {
+                const real = history[i],
+                    prev = history[i + 1];
+                const groups = getRawGroups(seed, prev);
+                if (real.sum === 13 || real.sum === 14 || groups.includes(real.type)) hit++;
+            }
+            return hit;
+        }
+
+        function isFullHitLast30(seed, history) {
+            if (history.length < 31) return false;
+            for (let i = 0; i < 30; i++) {
+                const real = history[i],
+                    prev = history[i + 1];
+                const groups = getRawGroups(seed, prev);
+                if (!(real.sum === 13 || real.sum === 14 || groups.includes(real.type))) return false;
+            }
+            return true;
+        }
+
+        function scanSeeds() {
+            if (scanning) return;
+            if (seedHistory.length < 31) { alert('需要至少31期数据'); return; }
+            scanning = true;
+            document.getElementById('seedScanBtn').disabled = true;
+            const status = document.getElementById('seedStatus');
+            const progressFill = document.getElementById('seedProgressFill');
+            progressFill.style.width = '0%';
+            status.textContent = '⏳ 扫描中...';
+
+            const from = 0,
+                to = 300000;
+            const results = [];
+            const total = to - from + 1;
+            let processed = 0;
+            const batch = 5000;
+
+            function processBatch() {
+                const end = Math.min(from + processed + batch - 1, to);
+                for (let seed = from + processed; seed <= end; seed++) {
+                    if (!isFullHitLast30(seed, seedHistory)) continue;
+                    const hit = calcTotalHit(seed, seedHistory);
+                    results.push({ seed, hit });
                 }
-            });
-            splash.addEventListener('click', () => {
-                if (splashDismissed) return;
-                splashDismissed = true; clearInterval(progressTimer);
-                progressFill.style.width = '100%'; progressText.textContent = '加载完成，点击进入';
-                setTimeout(() => {
-                    splash.classList.add('hidden');
-                    setTimeout(() => { splash.style.display = 'none'; }, 500);
-                    // 启动自动刷新(每10秒)
-                    setInterval(() => { if (!isRequesting) fetchDataFastest(); }, 10000);
-                }, 300);
-            });
+                processed += (end - (from + processed) + 1);
+                const pct = Math.min(100, Math.round((processed / total) * 100));
+                progressFill.style.width = pct + '%';
+                status.textContent = `扫描中 ${processed}/${total} (${pct}%) 已找到 ${results.length} 个`;
+
+                if (processed < total) {
+                    setTimeout(processBatch, 0);
+                } else {
+                    results.sort((a, b) => b.hit - a.hit);
+                    document.getElementById('seedCountBadge').textContent = `种子数: ${results.length}`;
+                    if (results.length > 0) {
+                        status.textContent = `✅ 扫描完成，找到 ${results.length} 个30中30种子`;
+                        applyBestSeed(results[0].seed);
+                    } else {
+                        status.textContent = '⚠️ 未找到符合条件的种子';
+                    }
+                    scanning = false;
+                    document.getElementById('seedScanBtn').disabled = false;
+                }
+            }
+            setTimeout(processBatch, 0);
+        }
+
+        function applyBestSeed(seed) {
+            const maxN = Math.min(100, seedHistory.length - 1);
+            const hit = calcTotalHit(seed, seedHistory);
+            document.getElementById('bestSeedInfo').textContent = `最佳种子: ${seed}`;
+            document.getElementById('seedHitInfo').textContent = `命中: ${hit}/${maxN} (${(hit / maxN * 100).toFixed(1)}%)`;
+            renderSeedPredict(seed);
+            renderSeedBacktest(seed);
+        }
+
+        function renderSeedPredict(seed) {
+            if (!seedHistory.length) return;
+            const last = seedHistory[0];
+            const groups = getRawGroups(seed, last);
+            const kill = getKillGroup(groups);
+            const container = document.getElementById('seedGroupsDisplay');
+            container.innerHTML = groups.map(g =>
+                `<div class="seed-type-box"><div class="lbl">三组</div><div class="val">${g}</div></div>`
+            ).join('');
+            document.getElementById('seedKillDisplay').textContent = `杀组：${kill}`;
+        }
+
+        function renderSeedBacktest(seed) {
+            const tbody = document.getElementById('seedBacktestBody');
+            const max = Math.min(30, seedHistory.length - 1);
+            let rows = '';
+            for (let i = 0; i < max; i++) {
+                const real = seedHistory[i],
+                    prev = seedHistory[i + 1];
+                const groups = getRawGroups(seed, prev);
+                const isHit = (real.sum === 13 || real.sum === 14) || groups.includes(real.type);
+                const groupsHtml = groups.map(g => `<span class="tag">${g}</span>`).join(' ');
+                const resultHtml = isHit ? '<span class="win">🀄️</span>' : '<span class="lose">✖</span>';
+                rows += `<tr>
+                    <td>${real.expect}</td>
+                    <td>${prev.nums.join('+')}=${prev.sum}</td>
+                    <td>${groupsHtml}</td>
+                    <td>${real.nums.join('+')}=${real.sum}</td>
+                    <td>${resultHtml}</td>
+                </tr>`;
+            }
+            tbody.innerHTML = rows;
+        }
+
+        // ============================================================
+        // 启动动画控制
+        // ============================================================
+        function initSplash() {
+            const splash = document.getElementById('splashScreen');
+            const progressFill = document.getElementById('splashProgressFill');
+            const progressLabel = document.getElementById('splashProgressLabel');
+            const progressPercent = document.getElementById('splashProgressPercent');
+            const linesContainer = document.getElementById('splashLines');
+
+            const messages = [
+                '> 加载预测引擎',
+                '> 初始化神经网络',
+                '> 校准混沌算法',
+                '> 载入种子库',
+                '> 同步实时数据流',
+                '> 系统就绪'
+            ];
+
+            let progress = 0;
+            let msgIndex = 0;
+            const totalSteps = 100;
+
+            function updateSplash() {
+                progress += 1 + Math.random() * 2;
+                if (progress >= 100) progress = 100;
+                progressFill.style.width = progress + '%';
+                progressPercent.textContent = Math.floor(progress) + '%';
+
+                const step = Math.floor((progress / totalSteps) * messages.length);
+                if (step > msgIndex && step < messages.length) {
+                    msgIndex = step;
+                    const newLine = document.createElement('div');
+                    newLine.className = 'line done';
+                    newLine.textContent = messages[step - 1] + ' ✓';
+                    linesContainer.appendChild(newLine);
+                    linesContainer.scrollTop = linesContainer.scrollHeight;
+                }
+
+                if (progress < 100) {
+                    const delay = 60 + Math.random() * 120;
+                    setTimeout(updateSplash, delay);
+                } else {
+                    progressLabel.textContent = '系统就绪';
+                    progressPercent.textContent = '100%';
+                    const lastLine = document.createElement('div');
+                    lastLine.className = 'line done';
+                    lastLine.textContent = '> 系统就绪 ✓';
+                    linesContainer.appendChild(lastLine);
+
+                    setTimeout(() => {
+                        splash.classList.add('hidden');
+                        document.getElementById('mainApp').classList.add('visible');
+                        refreshMain();
+                        // 自动刷新每15秒
+                        if (refreshTimer) clearInterval(refreshTimer);
+                        refreshTimer = setInterval(() => {
+                            if (!isRequesting) refreshMain();
+                        }, 15000);
+                    }, 600);
+                }
+            }
+
+            // 矩阵雨
+            const rainEl = document.getElementById('matrixRain');
+            let rainStr = '';
+            const chars = '01';
+            for (let i = 0; i < 2000; i++) {
+                rainStr += chars[Math.floor(Math.random() * chars.length)];
+                if (i % 80 === 0) rainStr += '\n';
+            }
+            rainEl.textContent = rainStr;
+            setTimeout(updateSplash, 300);
+        }
+
+        // ============================================================
+        // 事件绑定 & 启动
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            initSplash();
 
             // 算法切换
             document.querySelectorAll('.algo-btn').forEach(btn => {
                 btn.addEventListener('click', () => switchAlgo(btn.dataset.algo));
             });
-            // 主题
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+            // 主题切换 (黑白)
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                if (document.body.classList.contains('dark')) {
+                    document.body.classList.remove('dark');
+                    document.body.classList.add('light');
+                    document.getElementById('themeToggle').textContent = '🌙';
+                } else if (document.body.classList.contains('light')) {
+                    document.body.classList.remove('light');
+                    document.body.classList.add('dark');
+                    document.getElementById('themeToggle').textContent = '☀️';
+                } else {
+                    document.body.classList.add('dark');
+                    document.getElementById('themeToggle').textContent = '☀️';
+                }
+            });
+            // 默认暗色
+            document.body.classList.add('dark');
+
             // 复制
             document.getElementById('copyBtn').addEventListener('click', () => {
                 const val = document.getElementById('recordText').value.trim();
@@ -598,28 +1726,70 @@
                     }).catch(() => fallbackCopy(val));
                 } else fallbackCopy(val);
             });
+
             function fallbackCopy(text) {
                 const ta = document.createElement('textarea');
                 ta.value = text;
                 document.body.appendChild(ta);
                 ta.select();
-                try { document.execCommand('copy'); document.getElementById('toast').classList.add('show'); setTimeout(() => document.getElementById('toast').classList.remove('show'), 2000); } catch(e) {}
+                try {
+                    document.execCommand('copy');
+                    document.getElementById('toast').classList.add('show');
+                    setTimeout(() => document.getElementById('toast').classList.remove('show'), 2000);
+                } catch (e) {}
                 document.body.removeChild(ta);
             }
-            // 手动刷新
-            document.getElementById('refreshBtn').addEventListener('click', refreshData);
-            // 历史
-            document.getElementById('historyTriggerTop').addEventListener('click', openHistory);
-            document.getElementById('historyTriggerBottom').addEventListener('click', openHistory);
-            document.getElementById('historyClose').addEventListener('click', closeHistory);
-            document.getElementById('historyOverlay').addEventListener('click', closeHistory);
-        }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
-        }
+            // 历史
+            document.getElementById('historyTrigger').addEventListener('click', () => {
+                document.getElementById('historyOverlay').classList.add('open');
+                document.getElementById('historyPanel').classList.add('open');
+                renderHistory();
+            });
+            document.getElementById('historyClose').addEventListener('click', () => {
+                document.getElementById('historyPanel').classList.remove('open');
+                setTimeout(() => document.getElementById('historyOverlay').classList.remove('open'), 100);
+            });
+            document.getElementById('historyOverlay').addEventListener('click', () => {
+                document.getElementById('historyPanel').classList.remove('open');
+                setTimeout(() => document.getElementById('historyOverlay').classList.remove('open'), 100);
+            });
+
+            // 未来5期
+            let futureVisible = false;
+            document.getElementById('toggleFutureBtn').addEventListener('click', function() {
+                futureVisible = !futureVisible;
+                document.getElementById('futurePanel').classList.toggle('open', futureVisible);
+                this.textContent = futureVisible ? '📈 隐藏未来5期' : '📈 未来5期';
+                this.classList.toggle('active', futureVisible);
+            });
+
+            // 种子预测
+            let seedVisible = false;
+            document.getElementById('toggleSeedBtn').addEventListener('click', function() {
+                seedVisible = !seedVisible;
+                document.getElementById('seedPanel').classList.toggle('open', seedVisible);
+                this.textContent = seedVisible ? '🌱 关闭种子' : '🌱 种子预测';
+                this.classList.toggle('active', seedVisible);
+                if (seedVisible && seedHistory.length === 0) {
+                    seedFetch();
+                }
+            });
+
+            // 种子回测详情折叠
+            document.getElementById('seedToggleDetail').addEventListener('click', function() {
+                seedDetailVisible = !seedDetailVisible;
+                document.getElementById('seedDetailWrap').classList.toggle('open', seedDetailVisible);
+                this.textContent = seedDetailVisible ? '📊 隐藏回测详情' : '📊 显示回测详情';
+                this.classList.toggle('active', seedDetailVisible);
+            });
+
+            document.getElementById('seedFetchBtn').addEventListener('click', seedFetch);
+            document.getElementById('seedScanBtn').addEventListener('click', scanSeeds);
+        });
+
+        window._duoqing = { historyData, ALGO_MAP, switchAlgo, refreshMain, seedHistory, scanSeeds };
+        console.log('✅ 黑客预测系统已加载 (黑白主题 + 折叠回测)');
     </script>
 </body>
 </html>
