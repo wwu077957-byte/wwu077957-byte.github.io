@@ -5,26 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>多情 · 极速预测</title>
     <style>
+        /* 全屏重置 */
+        html, body { height: 100%; margin: 0; padding: 0; }
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', 'Courier New', monospace; }
         :root {
-            --bg: #0A0C10; --surface: rgba(20,30,45,0.7); --surface-heavy: rgba(12,18,30,0.9);
-            --text: #E8EDF5; --text-secondary: #7A8AA3; --border: rgba(0,255,200,0.08);
-            --shadow: 0 12px 40px rgba(0,0,0,0.6); --glass: rgba(0,255,200,0.06);
-            --accent-rose: #FF2D55; --accent-indigo: #00D4FF; --accent-orange: #FF9500;
-            --accent-teal: #00C7BE; --accent-green: #39FF14; --radius: 32px; --radius-xl: 40px;
+            --bg: #0A0C10;
+            --surface: rgba(20,30,45,0.7);
+            --surface-heavy: rgba(12,18,30,0.9);
+            --text: #E8EDF5;
+            --text-secondary: #7A8AA3;
+            --border: rgba(0,255,200,0.08);
+            --shadow: 0 12px 40px rgba(0,0,0,0.6);
+            --glass: rgba(0,255,200,0.06);
+            --accent-rose: #FF2D55;
+            --accent-indigo: #00D4FF;
+            --accent-orange: #FF9500;
+            --accent-teal: #00C7BE;
+            --accent-green: #39FF14;
+            --radius: 32px;
+            --radius-xl: 40px;
             transition: background 0.3s, color 0.3s;
         }
         body.light {
-            --bg: #F2F4F8; --surface: rgba(255,255,255,0.7); --surface-heavy: rgba(255,255,255,0.9);
-            --text: #0F0F11; --text-secondary: #6B7280; --border: rgba(0,0,0,0.06);
-            --shadow: 0 12px 40px rgba(0,0,0,0.06); --glass: rgba(255,255,255,0.75);
+            --bg: #F2F4F8;
+            --surface: rgba(255,255,255,0.7);
+            --surface-heavy: rgba(255,255,255,0.9);
+            --text: #0F0F11;
+            --text-secondary: #6B7280;
+            --border: rgba(0,0,0,0.06);
+            --shadow: 0 12px 40px rgba(0,0,0,0.06);
+            --glass: rgba(255,255,255,0.75);
         }
         body.dark {
-            --bg: #0A0C10; --surface: rgba(20,30,45,0.7); --surface-heavy: rgba(12,18,30,0.9);
-            --text: #E8EDF5; --text-secondary: #7A8AA3; --border: rgba(0,255,200,0.08);
+            --bg: #0A0C10;
+            --surface: rgba(20,30,45,0.7);
+            --surface-heavy: rgba(12,18,30,0.9);
+            --text: #E8EDF5;
+            --text-secondary: #7A8AA3;
+            --border: rgba(0,255,200,0.08);
             --glass: rgba(0,255,200,0.06);
         }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom)); transition: background 0.3s, color 0.3s; position: relative; overflow-x: hidden; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            height: 100%;
+            padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom));
+            transition: background 0.3s, color 0.3s;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
         .ambient-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .ambient-blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.08; animation: blobDrift 35s infinite alternate ease-in-out; }
@@ -55,8 +87,15 @@
         @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
         .splash-hint { font-family: 'Courier New', monospace; font-size: 11px; color: rgba(0,255,0,0.2); margin-top: 24px; letter-spacing: 2px; animation: blink 2s step-end infinite; }
 
-        /* main */
-        .main-app { position: relative; z-index: 10; opacity: 0; transition: opacity 0.8s ease; }
+        .main-app {
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
         .main-app.visible { opacity: 1; }
 
         .top-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 0 14px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
@@ -131,6 +170,27 @@
         .seed-type-box .lbl { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; }
         .seed-type-box .val { font-size: 18px; font-weight: 900; margin-top: 2px; font-family: 'Courier New', monospace; }
         .seed-kill { display: inline-block; background: rgba(255,45,85,0.12); color: var(--accent-rose); padding: 4px 16px; border-radius: 30px; font-weight: 900; font-size: 16px; font-family: 'Courier New', monospace; margin-top: 6px; border: 1px solid rgba(255,45,85,0.1); }
+
+        /* ★★★ 种子下一期杀组 ★★★ */
+        .seed-next-kill {
+            display: inline-block;
+            background: rgba(0,255,200,0.08);
+            color: var(--accent-teal);
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-weight: 900;
+            font-size: 18px;
+            font-family: 'Courier New', monospace;
+            margin: 6px 0 10px 0;
+            border: 1px solid rgba(0,255,200,0.2);
+            text-align: center;
+            width: 100%;
+        }
+        body.light .seed-next-kill {
+            background: rgba(0,212,255,0.08);
+            color: var(--accent-indigo);
+            border-color: rgba(0,212,255,0.2);
+        }
 
         .seed-toggle-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 18px; font-size: 11px; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; font-family: 'Courier New', monospace; margin: 8px 0 4px; text-align: center; }
         .seed-toggle-detail:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
@@ -290,6 +350,9 @@
                 <span class="seed-info" id="bestSeedInfo">最佳种子: --</span>
                 <span class="seed-info" id="seedHitInfo">命中: --</span>
             </div>
+            <!-- ★★★ 种子下一期杀组 ★★★ -->
+            <div class="seed-next-kill" id="seedNextKillDisplay">下一期杀组：--</div>
+
             <div class="seed-grid-3" id="seedGroupsDisplay"></div>
             <div style="text-align:center;"><span class="seed-kill" id="seedKillDisplay">--</span></div>
             <div class="seed-toggle-detail" id="seedToggleDetail">📊 显示回测详情</div>
@@ -739,9 +802,7 @@
         async function seedFetch() {
             const status = document.getElementById('seedStatus');
             status.textContent = '🔄 刷新数据...';
-            // 直接调用主刷新，会同步种子
             await refreshMain(true);
-            // 但 refreshMain 已经调用了 setHistory，所以这里只需要更新状态
             status.textContent = `✅ 数据已更新 (${seedHistory.length}期)`;
             setTimeout(() => {
                 if (seedHistory.length >= 31) {
@@ -831,6 +892,16 @@
             document.getElementById('seedHitInfo').textContent = `命中: ${hit}/${maxN} (${(hit / maxN * 100).toFixed(1)}%)`;
             renderSeedPredict(seed);
             renderSeedBacktest(seed);
+
+            // ★★★ 更新种子下一期杀组 ★★★
+            if (seedHistory.length > 0) {
+                const last = seedHistory[0];
+                const groups = getRawGroups(seed, last);
+                const kill = getKillGroup(groups);
+                document.getElementById('seedNextKillDisplay').textContent = `下一期杀组：${kill}`;
+            } else {
+                document.getElementById('seedNextKillDisplay').textContent = '下一期杀组：--';
+            }
         }
 
         function renderSeedPredict(seed) {
@@ -1032,11 +1103,11 @@
                 this.textContent = seedVisible ? '🌱 关闭种子' : '🌱 种子预测';
                 this.classList.toggle('active', seedVisible);
                 if (seedVisible && seedHistory.length === 0) {
-                    seedFetch(); // 首次打开自动刷新数据
+                    seedFetch();
                 }
             });
 
-            // 种子刷新按钮 (现在调用 seedFetch)
+            // 种子刷新按钮
             document.getElementById('seedFetchBtn').addEventListener('click', seedFetch);
 
             // 种子扫描
@@ -1052,7 +1123,7 @@
         });
 
         window._duoqing = { historyData, ALGO_MAP, switchAlgo, refreshMain, seedHistory, scanSeeds };
-        console.log('✅ 极速版已加载 (3秒自动刷新 + 手动刷新，种子数据同步)');
+        console.log('✅ 极速版已加载 (3秒自动刷新 + 手动刷新，种子数据同步，显示下一期杀组)');
     </script>
 </body>
 </html>
