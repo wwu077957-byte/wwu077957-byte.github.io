@@ -171,7 +171,6 @@
         .seed-type-box .val { font-size: 18px; font-weight: 900; margin-top: 2px; font-family: 'Courier New', monospace; }
         .seed-kill { display: inline-block; background: rgba(255,45,85,0.12); color: var(--accent-rose); padding: 4px 16px; border-radius: 30px; font-weight: 900; font-size: 16px; font-family: 'Courier New', monospace; margin-top: 6px; border: 1px solid rgba(255,45,85,0.1); }
 
-        /* ★★★ 种子下一期杀组 ★★★ */
         .seed-next-kill {
             display: inline-block;
             background: rgba(0,255,200,0.08);
@@ -350,7 +349,6 @@
                 <span class="seed-info" id="bestSeedInfo">最佳种子: --</span>
                 <span class="seed-info" id="seedHitInfo">命中: --</span>
             </div>
-            <!-- ★★★ 种子下一期杀组 ★★★ -->
             <div class="seed-next-kill" id="seedNextKillDisplay">下一期杀组：--</div>
 
             <div class="seed-grid-3" id="seedGroupsDisplay"></div>
@@ -778,9 +776,8 @@
         let seedHistory = [];
         let scanning = false;
         let seedDetailVisible = false;
-        let currentBestSeed = null; // 存储当前最佳种子
+        let currentBestSeed = null;
 
-        // 设置种子历史 (由主刷新调用)
         function setSeedHistory(hist) {
             seedHistory = hist.slice();
             const scanBtn = document.getElementById('seedScanBtn');
@@ -791,14 +788,12 @@
                 scanBtn.disabled = true;
                 document.getElementById('seedStatus').textContent = `⚠️ 数据不足31期 (${seedHistory.length})`;
             }
-            // ★★★ 如果已有最佳种子，自动重新应用 (刷新预测) ★★★
             if (currentBestSeed !== null && seedHistory.length > 0) {
                 applyBestSeed(currentBestSeed);
             }
         }
         window._seedTool = { setHistory: setSeedHistory };
 
-        // 种子数据拉取 (复用主数据)
         async function seedFetch() {
             const status = document.getElementById('seedStatus');
             status.textContent = '🔄 刷新数据...';
@@ -820,7 +815,9 @@
                 const real = history[i],
                     prev = history[i + 1];
                 const groups = getRawGroups(seed, prev);
-                if (real.sum === 13 || real.sum === 14 || groups.includes(real.type)) hit++;
+                const kill = getKillGroup(groups);
+                // ★★★ 修正：杀组 ≠ 实际开奖属性 ★★★
+                if (kill !== real.type) hit++;
             }
             return hit;
         }
@@ -831,7 +828,9 @@
                 const real = history[i],
                     prev = history[i + 1];
                 const groups = getRawGroups(seed, prev);
-                if (!(real.sum === 13 || real.sum === 14 || groups.includes(real.type))) return false;
+                const kill = getKillGroup(groups);
+                // ★★★ 修正：杀组 ≠ 实际开奖属性 ★★★
+                if (kill === real.type) return false;
             }
             return true;
         }
@@ -893,7 +892,6 @@
             renderSeedPredict(seed);
             renderSeedBacktest(seed);
 
-            // ★★★ 更新种子下一期杀组 ★★★
             if (seedHistory.length > 0) {
                 const last = seedHistory[0];
                 const groups = getRawGroups(seed, last);
@@ -924,7 +922,9 @@
                 const real = seedHistory[i],
                     prev = seedHistory[i + 1];
                 const groups = getRawGroups(seed, prev);
-                const isHit = (real.sum === 13 || real.sum === 14) || groups.includes(real.type);
+                const kill = getKillGroup(groups);
+                // ★★★ 修正：杀组 ≠ 实际开奖属性 ★★★
+                const isHit = (kill !== real.type);
                 const groupsHtml = groups.map(g => `<span class="tag">${g}</span>`).join(' ');
                 const resultHtml = isHit ? '<span class="win">🀄️</span>' : '<span class="lose">✖</span>';
                 rows += `<tr>
@@ -992,7 +992,6 @@
                         splash.classList.add('hidden');
                         document.getElementById('mainApp').classList.add('visible');
                         refreshMain();
-                        // ★★★ 自动刷新 3 秒 ★★★
                         if (refreshTimer) clearInterval(refreshTimer);
                         refreshTimer = setInterval(() => {
                             if (!isRequesting) refreshMain();
@@ -1001,7 +1000,6 @@
                 }
             }
 
-            // 矩阵雨
             const rainEl = document.getElementById('matrixRain');
             let rainStr = '';
             const chars = '01';
@@ -1019,12 +1017,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             initSplash();
 
-            // 算法切换
             document.querySelectorAll('.algo-btn').forEach(btn => {
                 btn.addEventListener('click', () => switchAlgo(btn.dataset.algo));
             });
 
-            // 主题切换
             document.getElementById('themeToggle').addEventListener('click', () => {
                 if (document.body.classList.contains('dark')) {
                     document.body.classList.remove('dark');
@@ -1041,12 +1037,10 @@
             });
             document.body.classList.add('dark');
 
-            // ★★★ 手动刷新 (全局) ★★★
             document.getElementById('manualRefreshBtn').addEventListener('click', () => {
                 refreshMain(true);
             });
 
-            // 复制
             document.getElementById('copyBtn').addEventListener('click', () => {
                 const val = document.getElementById('recordText').value.trim();
                 if (!val) return;
@@ -1071,7 +1065,6 @@
                 document.body.removeChild(ta);
             }
 
-            // 历史
             document.getElementById('historyTrigger').addEventListener('click', () => {
                 document.getElementById('historyOverlay').classList.add('open');
                 document.getElementById('historyPanel').classList.add('open');
@@ -1086,7 +1079,6 @@
                 setTimeout(() => document.getElementById('historyOverlay').classList.remove('open'), 100);
             });
 
-            // 未来5期
             let futureVisible = false;
             document.getElementById('toggleFutureBtn').addEventListener('click', function() {
                 futureVisible = !futureVisible;
@@ -1095,7 +1087,6 @@
                 this.classList.toggle('active', futureVisible);
             });
 
-            // 种子面板
             let seedVisible = false;
             document.getElementById('toggleSeedBtn').addEventListener('click', function() {
                 seedVisible = !seedVisible;
@@ -1107,13 +1098,9 @@
                 }
             });
 
-            // 种子刷新按钮
             document.getElementById('seedFetchBtn').addEventListener('click', seedFetch);
-
-            // 种子扫描
             document.getElementById('seedScanBtn').addEventListener('click', scanSeeds);
 
-            // 种子回测折叠
             document.getElementById('seedToggleDetail').addEventListener('click', function() {
                 seedDetailVisible = !seedDetailVisible;
                 document.getElementById('seedDetailWrap').classList.toggle('open', seedDetailVisible);
@@ -1123,7 +1110,7 @@
         });
 
         window._duoqing = { historyData, ALGO_MAP, switchAlgo, refreshMain, seedHistory, scanSeeds };
-        console.log('✅ 极速版已加载 (3秒自动刷新 + 手动刷新，种子数据同步，显示下一期杀组)');
+        console.log('✅ 种子回测判定已修复 (杀组 ≠ 实际)');
     </script>
 </body>
 </html>
