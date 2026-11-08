@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Duoqing (DQ) — Indie Web Developer</title>
+<meta name="description" content="Personal developer portfolio of Duoqing (DQ), an independent web developer building small, fast web tools, Telegram bots and open-source projects with HTML, CSS, JavaScript and Python.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f6cd6d'/%3E%3Cstop offset='1' stop-color='%23d99a2b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%23121216'/%3E%3Ctext x='32' y='42' font-family='Arial,sans-serif' font-size='26' font-weight='700' fill='url(%23g)' text-anchor='middle'%3EDQ%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b0b10; --bg2:#101018; --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.09);
+    --txt:#f2f0ea; --mut:#a7a5ad; --gold1:#f6cd6d; --gold2:#d99a2b;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:
+      radial-gradient(900px 480px at 85% -10%, rgba(217,154,43,.14), transparent 60%),
+      radial-gradient(700px 420px at -10% 25%, rgba(246,205,109,.07), transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    color:var(--txt); line-height:1.65; min-height:100vh;
+  }
+  a{color:inherit}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 72px}
+  header{
+    position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:rgba(11,11,16,.72);border-bottom:1px solid var(--line);
+  }
+  .nav{max-width:960px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:18px}
+  .logo{font-weight:800;letter-spacing:.5px;font-size:20px;text-decoration:none}
+  .logo b{background:linear-gradient(120deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .logo span{color:var(--mut);font-weight:600;font-size:13px;margin-left:8px}
+  .nav nav{margin-left:auto;display:flex;gap:20px}
+  .nav nav a{color:var(--mut);text-decoration:none;font-size:14px;font-weight:600}
+  .nav nav a:hover{color:var(--gold1)}
+  .hero{padding:84px 0 30px;text-align:left}
+  .badge{
+    display:inline-block;padding:6px 14px;border:1px solid rgba(246,205,109,.35);border-radius:999px;
+    color:var(--gold1);font-size:13px;font-weight:600;background:rgba(246,205,109,.06);letter-spacing:.4px;
+  }
+  h1{font-size:clamp(38px,7vw,58px);line-height:1.12;margin:22px 0 6px;font-weight:800;letter-spacing:.2px}
+  h1 .gold{background:linear-gradient(120deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .role{font-size:clamp(18px,3.4vw,24px);color:var(--txt);font-weight:600}
+  .tagline{margin-top:14px;color:var(--mut);max-width:640px;font-size:16px}
+  .meta{margin-top:16px;color:var(--mut);font-size:14px}
+  .meta i{font-style:normal;color:var(--gold1);margin:0 6px}
+  .cta{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{
+    display:inline-block;padding:12px 22px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn-gold{background:linear-gradient(120deg,var(--gold1),var(--gold2));color:#221a05;box-shadow:0 8px 24px rgba(217,154,43,.28)}
+  .btn-ghost{border:1px solid var(--line);background:var(--card);color:var(--txt)}
+  section{margin-top:64px}
+  h2{font-size:24px;font-weight:800;margin-bottom:6px}
+  h2::after{content:"";display:block;width:44px;height:3px;border-radius:2px;margin-top:8px;background:linear-gradient(90deg,var(--gold1),var(--gold2))}
+  .sub{color:var(--mut);font-size:15px;margin-bottom:22px}
+  .about p{color:#d8d6cf;max-width:720px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    transition:transform .18s ease,border-color .18s ease;
+    opacity:0;transform:translateY(14px);
+  }
+  .card.in{opacity:1;transform:none}
+  .card:hover{transform:translateY(-3px);border-color:rgba(246,205,109,.4)}
+  .card h3{font-size:17px;margin-bottom:8px}
+  .card p{color:var(--mut);font-size:14.5px;min-height:66px}
+  .tags{margin:12px 0 14px;display:flex;flex-wrap:wrap;gap:6px}
+  .tags span{font-size:12px;color:var(--gold1);border:1px solid rgba(246,205,109,.3);padding:2px 9px;border-radius:999px;background:rgba(246,205,109,.05)}
+  .links a{font-size:14px;font-weight:700;color:var(--gold1);text-decoration:none;margin-right:16px}
+  .links a:hover{text-decoration:underline}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chips span{
+    padding:9px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line);
+    font-size:14px;font-weight:600;
+  }
+  .contact{display:flex;flex-wrap:wrap;gap:12px}
+  .contact a{
+    padding:13px 20px;border-radius:12px;background:var(--card);border:1px solid var(--line);
+    text-decoration:none;font-weight:700;font-size:15px;transition:border-color .15s ease,transform .15s ease;
+  }
+  .contact a:hover{border-color:rgba(246,205,109,.45);transform:translateY(-2px)}
+  .contact small{display:block;color:var(--mut);font-weight:500;font-size:12.5px}
+  footer{margin-top:76px;padding-top:22px;border-top:1px solid var(--line);color:var(--mut);font-size:13.5px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+  @media (max-width:560px){ .nav nav{gap:14px} .hero{padding-top:56px} }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="logo" href="#top"><b>DQ</b> · 多情 <span>DUOQING.DEV</span></a>
+    <nav>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap" id="top">
+  <div class="hero">
+    <span class="badge">✦ Indie Web Developer</span>
+    <h1>Duoqing <span class="gold">/ 多情</span></h1>
+    <div class="role">I build small, fast, single-purpose web tools — and ship them.</div>
+    <p class="tagline">Self-taught developer working in HTML, CSS, JavaScript and Python. Most of my projects are lightweight single-file web apps and bots: no frameworks to babysit, no sign-ups, just open the page and it works.</p>
+    <div class="meta">📍 Fuzhou, China <i>·</i> 🌐 Web Tools <i>·</i> 🤖 Telegram Bots <i>·</i> 🐍 Python</div>
+    <div class="cta">
+      <a class="btn btn-gold" href="#projects">View Projects</a>
+      <a class="btn btn-ghost" href="https://github.com/wwu077957-byte" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <p class="sub">Things I have designed, built and deployed myself.</p>
+    <div class="grid">
+      <article class="card">
+        <h3>🌐 IP &amp; Network Diagnostics</h3>
+        <p>A browser-based network toolkit: IP geolocation, connection quality and purity checks, plus latency and speed diagnostics. Built for quickly judging whether a connection is clean and fast enough to work on.</p>
+        <div class="tags"><span>JavaScript</span><span>Web APIs</span><span>Cloudflare Pages</span></div>
+        <div class="links"><a href="https://duoqingping.pages.dev" target="_blank" rel="noopener">Live Site ↗</a></div>
+      </article>
+
+      <article class="card">
+        <h3>🧰 Web Utility Toolbox</h3>
+        <p>A glassmorphism collection of everyday web utilities — phone-number attribution lookup, format and unit converters, and other small tools — each shipped as a fast, self-contained single-file page.</p>
+        <div class="tags"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+        <div class="links"><a href="https://github.com/wwu077957-byte" target="_blank" rel="noopener">Source on GitHub ↗</a></div>
+      </article>
+
+      <article class="card">
+        <h3>🤖 Telegram Bot Projects</h3>
+        <p>Python bots built on the Telegram Bot API, including an open-source daily voting &amp; ranking bot with changeable votes and automatic midnight resets, deployed as a worker process.</p>
+        <div class="tags"><span>Python</span><span>python-telegram-bot</span><span>Bot API</span></div>
+        <div class="links"><a href="https://github.com/wwu077957-byte/groq-telegram-bot" target="_blank" rel="noopener">Repository ↗</a></div>
+      </article>
+
+      <article class="card">
+        <h3>📦 Open Source &amp; Experiments</h3>
+        <p>More tools, site experiments and works in progress — landing pages, dashboards and utility scripts — are developed in the open on my GitHub profile.</p>
+        <div class="tags"><span>Open Source</span><span>GitHub</span><span>Vercel</span></div>
+        <div class="links"><a href="https://github.com/wwu077957-byte" target="_blank" rel="noopener">github.com/wwu077957-byte ↗</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="skills">
+    <h2>Skills &amp; Stack</h2>
+    <p class="sub">What I reach for when building.</p>
+    <div class="chips">
+      <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Python</span>
+      <span>Cloudflare Pages</span><span>Vercel</span><span>GitHub</span>
+      <span>Telegram Bot API</span><span>REST APIs</span><span>Responsive Design</span>
+      <span>Single-File Web Apps</span><span>Git</span>
+    </div>
+  </section>
+
+  <section id="about" class="about">
+    <h2>About</h2>
+    <p class="sub"></p>
+    <p>I'm Duoqing (DQ), an independent developer from China. I learn by shipping: every tool on this page started as a problem I ran into myself, was built with plain web technology, and is deployed on free-tier infrastructure such as Cloudflare Pages, Vercel and GitHub. My design rule is simple — clean, refined, and finished down to the details.</p>
+  </section>
+
+  <section id="contact">
+    <h2>Contact</h2>
+    <p class="sub">The fastest way to reach me is Telegram.</p>
+    <div class="contact">
+      <a href="https://t.me/dro8v" target="_blank" rel="noopener">Telegram<small>@dro8v</small></a>
+      <a href="https://github.com/wwu077957-byte" target="_blank" rel="noopener">GitHub<small>wwu077957-byte</small></a>
+      <a href="mailto:dq686@outlook.com">Email<small>dq686@outlook.com</small></a>
+    </div>
+  </section>
+
+  <footer>
+    <span>© <span id="y">2026</span> Duoqing (DQ). All rights reserved.</span>
+    <span>Built as a single HTML file · Hosted on Cloudflare Pages</span>
+  </footer>
+</div>
+
+<script>
+  document.getElementById('y').textContent = new Date().getFullYear();
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  document.querySelectorAll('.card').forEach(function(c){ io.observe(c); });
+</script>
+</body>
+</html>
